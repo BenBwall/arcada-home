@@ -1,0 +1,10 @@
+# Home-drive files that are not part of the website project
+.DS_Store
+._*
+.bash_logout
+.bashrc
+.profile
+
+# Local repositories and recovery data
+Gitrepo/
+codex-temp-html-skill-vendors-*/
