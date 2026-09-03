@@ -1,9 +1,31 @@
 # Home-drive files that are not part of the website project
 .DS_Store
 ._*
+.AppleDouble
+.LSOverride
+Thumbs.db
+Desktop.ini
 .bash_logout
 .bashrc
 .profile
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Local environment, logs, and generated output
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+node_modules/
+dist/
+coverage/
+.cache/
 
 # Local repositories and recovery data
 Gitrepo/
