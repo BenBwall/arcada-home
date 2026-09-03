@@ -1,0 +1,10 @@
+[submodule "vendor/impeccable"]
+	path = vendor/impeccable
+	url = https://github.com/pbakaus/impeccable.git
+	branch = main
+	shallow = true
+[submodule "vendor/mattpocock-skills"]
+	path = vendor/mattpocock-skills
+	url = https://github.com/mattpocock/skills.git
+	branch = main
+	shallow = true
