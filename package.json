@@ -1,0 +1,42 @@
+{
+  "name": "arcada-home",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --bun vite dev",
+    "build": "bun --bun vite build",
+    "preview": "bun --bun vite preview",
+    "prepare": "bun --bun svelte-kit sync",
+    "check": "bun run lint && bun --bun svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "bun --bun svelte-kit sync && bun --bun svelte-check --tsconfig ./tsconfig.json --watch",
+    "test": "bun run build && bun --bun playwright test",
+    "lint": "bun --bun svelte-kit sync && bun --bun oxlint --deny-warnings --report-unused-disable-directives .",
+    "lint:fix": "bun run lint --fix",
+    "format": "bun --bun oxfmt --write .",
+    "format:check": "bun --bun oxfmt --check ."
+  },
+  "dependencies": {
+    "@lucide/svelte": "^1.45.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@sveltejs/adapter-static": "^3.0.10",
+    "@sveltejs/kit": "^2.70.3",
+    "@sveltejs/vite-plugin-svelte": "^7.3.0",
+    "@types/bun": "^1.4.2",
+    "@types/node": "^24.13.4",
+    "oxfmt": "^0.67.0",
+    "oxlint": "^1.82.0",
+    "oxlint-tsgolint": "^7.0.2001",
+    "svelte": "^5.57.0",
+    "svelte-check": "^4.7.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3",
+    "vite": "^8.3.0"
+  },
+  "engines": {
+    "bun": ">=1.4.2"
+  },
+  "packageManager": "bun@1.4.2"
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "all",
+  "endOfLine": "lf",
+  "svelte": true,
+  "ignorePatterns": [
+    "node_modules/**",
+    ".svelte-kit/**",
+    "build/**",
+    "dist/**",
+    "coverage/**",
+    "test-results/**",
+    "playwright-report/**"
+  ]
+}

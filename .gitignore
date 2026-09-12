@@ -29,4 +29,9 @@ coverage/
 
 # Local repositories and recovery data
 Gitrepo/
-codex-temp-html-skill-vendors-*/
+# SvelteKit and browser test output
+.svelte-kit/
+build/
+
+test-results/
+playwright-report/
