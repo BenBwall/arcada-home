@@ -30,6 +30,12 @@
       "rules": {
         "eslint/no-console": "off"
       }
+    },
+    {
+      "files": ["svelte.config.js", "vite.config.ts"],
+      "rules": {
+        "eslint/no-restricted-imports": "off"
+      }
     }
   ],
   "options": {
@@ -260,7 +266,17 @@
     "eslint/no-self-compare": "error",
     "eslint/no-alert": "warn",
     "eslint/no-console": "warn",
-    "eslint/no-restricted-imports": "off",
+    "eslint/no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "regex": "^\\.{1,2}([/\\\\]|$)",
+            "message": "Use a tsconfig path alias instead of a relative import. Aliases are defined in tsconfig.paths.json."
+          }
+        ]
+      }
+    ],
     "eslint/no-template-curly-in-string": "error",
     "eslint/no-unmodified-loop-condition": "error",
     "eslint/no-unreachable-loop": "error",
@@ -318,7 +334,6 @@
     "typescript/switch-exhaustiveness-check": "error",
     "eslint/func-style": ["error", "expression"],
     "eslint/prefer-arrow-callback": "error",
-    "import/no-relative-parent-imports": "error",
     "typescript/consistent-type-imports": [
       "error",
       {

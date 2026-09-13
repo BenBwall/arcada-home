@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ThemeToggle from "./ThemeToggle.svelte";
+  import ThemeToggle from "$components/ThemeToggle.svelte";
   import { page } from "$app/state";
   import { resolve } from "$app/paths";
   const links = [

@@ -10,7 +10,7 @@ import {
   isTheme,
   parseAppearance,
   parseThemeFile,
-} from "./theme-schema";
+} from "$theme/theme-schema";
 
 export const readAppearance = (): Appearance => {
   const fallback: Appearance = { active: "system", themes: [], version: 1 };

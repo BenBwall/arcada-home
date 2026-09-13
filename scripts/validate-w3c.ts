@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { validateBuild } from "./w3c";
+import { validateBuild } from "$scripts/w3c";
 
 validateBuild(resolve(__dirname, "../build"), process.argv[2])
   .then((exitCode) => {

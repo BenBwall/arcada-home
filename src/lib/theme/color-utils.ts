@@ -1,4 +1,4 @@
-import { type Colors, colorFields } from "./theme-schema";
+import { type Colors, colorFields } from "$theme/theme-schema";
 
 export type OklchChannels = readonly [number, number, number, number];
 const PERCENT_MAX = 100;

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { LayoutProps } from "./$types";
-  import SiteHeader from "$lib/components/SiteHeader.svelte";
+  import type { LayoutProps } from "$route-types/$types";
+  import SiteHeader from "$components/SiteHeader.svelte";
   let { children }: LayoutProps = $props();
 </script>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { type OklchChannels, formatOklch, oklchChannels } from "$lib/theme/color-utils";
+  import { type OklchChannels, formatOklch, oklchChannels } from "$theme/color-utils";
 
   let {
     label,

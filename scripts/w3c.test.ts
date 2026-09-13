@@ -5,7 +5,7 @@ import {
   parseHtmlResult,
   validateBuild,
   validateDocument,
-} from "./w3c";
+} from "$scripts/w3c";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { rejects } from "node:assert/strict";

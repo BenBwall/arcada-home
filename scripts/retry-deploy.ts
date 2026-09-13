@@ -1,5 +1,5 @@
-import { deploy } from "./deploy";
-import { runCommand } from "./shared";
+import { deploy } from "$scripts/deploy";
+import { runCommand } from "$scripts/shared";
 
 const readConfigPath = (): string => {
   try {

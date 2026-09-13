@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Lead from "$lib/components/Lead.svelte";
-  import PageTitle from "$lib/components/PageTitle.svelte";
-  import Prose from "$lib/components/Prose.svelte";
+  import Lead from "$components/Lead.svelte";
+  import PageTitle from "$components/PageTitle.svelte";
+  import Prose from "$components/Prose.svelte";
 </script>
 
 <svelte:head>

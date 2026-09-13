@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Lead from "$lib/components/Lead.svelte";
-  import PageTitle from "$lib/components/PageTitle.svelte";
-  import ProjectRow from "$lib/components/ProjectRow.svelte";
-  import { projects } from "$lib/data/projects";
+  import Lead from "$components/Lead.svelte";
+  import PageTitle from "$components/PageTitle.svelte";
+  import ProjectRow from "$components/ProjectRow.svelte";
+  import { projects } from "$data/projects";
 </script>
 
 <svelte:head>

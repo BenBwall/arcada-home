@@ -8,7 +8,7 @@ import {
   resolveChildPath,
   runCommand,
   withLock,
-} from "./shared";
+} from "$scripts/shared";
 import { randomUUID } from "node:crypto";
 
 const exportRevision = (settings: DeploymentSettings, revision: string, work: string): string => {

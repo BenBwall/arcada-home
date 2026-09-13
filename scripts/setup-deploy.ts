@@ -11,7 +11,7 @@ import {
   runCommand,
   withLock,
   writeJson,
-} from "./shared";
+} from "$scripts/shared";
 import { createHash, randomUUID } from "node:crypto";
 import { homedir } from "node:os";
 import { parseArgs } from "node:util";
@@ -95,6 +95,10 @@ const installTooling = ({ bun, cache }: DeploymentSettings): string => {
   const manifest = readJsonObject(resolveChildPath(repository, "package.json"));
   writeJson(resolveChildPath(tooling, "package.json"), { ...manifest, scripts: {} });
   copyFile(resolveChildPath(repository, "bun.lock"), resolveChildPath(tooling, "bun.lock"));
+  copyFile(
+    resolveChildPath(repository, "tsconfig.paths.json"),
+    resolveChildPath(tooling, "tsconfig.paths.json"),
+  );
   copyDirectory(__dirname, resolveChildPath(tooling, "scripts"));
 
   const options = { cwd: tooling, env: createBuildEnvironment(bun) };

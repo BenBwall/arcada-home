@@ -1,8 +1,8 @@
 import * as fs from "node:fs";
-import { loadSettings, readMainRevision } from "./shared";
-import { buildRevision } from "./build";
+import { loadSettings, readMainRevision } from "$scripts/shared";
+import { buildRevision } from "$scripts/build";
 import { parseArgs } from "node:util";
-import { publishRevision } from "./publish";
+import { publishRevision } from "$scripts/publish";
 
 const forEachReceivedRevision = (handleRevision: (revision: string) => void): void => {
   for (const line of fs.readFileSync(0, "utf8").split(/\r?\n/)) {

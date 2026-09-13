@@ -6,19 +6,19 @@
     MAX_THEMES,
     STORAGE_KEY,
     isTheme,
-  } from "$lib/theme/theme-schema";
+  } from "$theme/theme-schema";
   import {
     applyAppearance,
     getSystemTheme,
     importThemes,
     readAppearance,
     saveAppearance,
-  } from "$lib/theme/theme";
+  } from "$theme/theme";
   import { onMount, tick } from "svelte";
-  import Button from "./Button.svelte";
-  import Select from "./Select.svelte";
+  import Button from "$components/Button.svelte";
+  import Select from "$components/Select.svelte";
   import SunMoon from "@lucide/svelte/icons/sun-moon";
-  import ThemeEditor from "./ThemeEditor.svelte";
+  import ThemeEditor from "$components/ThemeEditor.svelte";
   import X from "@lucide/svelte/icons/x";
   import { on } from "svelte/events";
 

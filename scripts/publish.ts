@@ -10,7 +10,7 @@ import {
   resolveChildPath,
   withLock,
   writeJson,
-} from "./shared";
+} from "$scripts/shared";
 import { randomUUID } from "node:crypto";
 
 const PUBLIC_URL = "https://people.arcada.fi/~bergenwb/";

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "$components/*": ["./src/lib/components/*"],
+      "$data/*": ["./src/lib/data/*"],
+      "$theme/*": ["./src/lib/theme/*"],
+      "$scripts/*": ["./scripts/*"],
+      "$route-types/*": ["./.svelte-kit/types/src/routes/*"]
+    }
+  }
+}

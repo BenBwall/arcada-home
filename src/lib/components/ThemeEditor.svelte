@@ -6,14 +6,14 @@
     colorFields,
     isCssColor,
     isTheme,
-  } from "$lib/theme/theme-schema";
+  } from "$theme/theme-schema";
 
   import { onMount, tick } from "svelte";
-  import Button from "./Button.svelte";
-  import ColorPicker from "./ColorPicker.svelte";
-  import Select from "./Select.svelte";
-  import { applyTheme } from "$lib/theme/theme";
-  import { readCurrentColors } from "$lib/theme/color-utils";
+  import Button from "$components/Button.svelte";
+  import ColorPicker from "$components/ColorPicker.svelte";
+  import Select from "$components/Select.svelte";
+  import { applyTheme } from "$theme/theme";
+  import { readCurrentColors } from "$theme/color-utils";
 
   let {
     initial,
