@@ -22,7 +22,8 @@
     "lint:fix": "bun run lint:js --fix && bun run lint:w3c",
     "test:validators": "bun test scripts/w3c.test.ts",
     "format": "bun --bun oxfmt --write .",
-    "format:check": "bun --bun oxfmt --check ."
+    "format:check": "bun --bun oxfmt --check .",
+    "test:themes": "bun test --tsconfig-override ./tsconfig.paths.json src/lib/theme/theme-schema.test.ts"
   },
   "dependencies": {
     "@lucide/svelte": "^1.45.0"

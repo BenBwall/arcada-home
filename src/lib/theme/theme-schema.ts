@@ -1,4 +1,13 @@
+import {
+  type ColorSchemeId,
+  DEFAULT_SCHEME,
+  colorSchemes,
+  getBuiltInTheme,
+  getColorScheme,
+} from "$theme/built-in-themes";
+
 export type Theme = "light" | "dark";
+export type AppearanceMode = Theme | "system";
 
 export const STORAGE_KEY = "appearance-v1";
 export const MAX_THEMES = 512;
@@ -42,16 +51,21 @@ export type CustomTheme = {
   id: string;
   name: string;
   base: Theme;
+  baseScheme?: ColorSchemeId;
   colors: Partial<Colors>;
 };
 
 export type Appearance = {
-  version: 1;
-  active: string;
+  version: 2;
+  mode: AppearanceMode;
+  scheme: string;
   themes: CustomTheme[];
 };
 
 export const isTheme = (value: unknown): value is Theme => value === "light" || value === "dark";
+
+export const isAppearanceMode = (value: unknown): value is AppearanceMode =>
+  value === "system" || isTheme(value);
 
 export const isCssColor = (value: unknown): value is string =>
   typeof value === "string" && typeof CSS !== "undefined" && CSS.supports("color", value);
@@ -86,7 +100,10 @@ const parseColors = (value: unknown): Partial<Colors> | null => {
 };
 
 export const parseCustomTheme = (value: unknown): CustomTheme | null => {
-  if (!isRecord(value) || !hasOnlyKeys(value, ["id", "name", "base", "colors"] as const)) {
+  if (
+    !isRecord(value) ||
+    !hasOnlyKeys(value, ["id", "name", "base", "baseScheme", "colors"] as const)
+  ) {
     return null;
   }
   if (typeof value.id !== "string" || !/^custom-[\w-]{1,80}$/.test(value.id)) {
@@ -99,12 +116,23 @@ export const parseCustomTheme = (value: unknown): CustomTheme | null => {
     return null;
   }
 
+  const baseScheme = getColorScheme(value.baseScheme);
+  if (value.baseScheme !== undefined && !baseScheme) {
+    return null;
+  }
+
   const colors = parseColors(value.colors);
   if (!colors) {
     return null;
   }
 
-  return { base: value.base, colors, id: value.id, name: value.name.trim() };
+  return {
+    base: value.base,
+    ...(baseScheme ? { baseScheme: baseScheme.id } : {}),
+    colors,
+    id: value.id,
+    name: value.name.trim(),
+  };
 };
 
 const parseThemeList = (value: unknown): CustomTheme[] | null => {
@@ -128,23 +156,51 @@ const parseThemeList = (value: unknown): CustomTheme[] | null => {
 };
 
 export const parseAppearance = (value: unknown): Appearance | null => {
-  if (!isRecord(value) || !hasOnlyKeys(value, ["version", "active", "themes"] as const)) {
+  if (!isRecord(value)) {
     return null;
   }
-  if (value.version !== 1 || typeof value.active !== "string") {
-    return null;
-  }
-
   const themes = parseThemeList(value.themes);
   if (!themes) {
     return null;
   }
 
-  const isBuiltIn = value.active === "system" || isTheme(value.active);
-  const isCustom = themes.some((theme) => theme.id === value.active);
-  const active = isBuiltIn || isCustom ? value.active : "system";
+  if (value.version === 2) {
+    if (
+      !hasOnlyKeys(value, ["version", "mode", "scheme", "themes"]) ||
+      !isAppearanceMode(value.mode) ||
+      typeof value.scheme !== "string"
+    ) {
+      return null;
+    }
+    const knownScheme =
+      getColorScheme(value.scheme) ?? themes.some((theme) => theme.id === value.scheme);
+    return {
+      mode: value.mode,
+      scheme: knownScheme ? value.scheme : DEFAULT_SCHEME,
+      themes,
+      version: 2,
+    };
+  }
 
-  return { active, themes, version: 1 };
+  // Split earlier combined selections without changing their appearance.
+  if (
+    value.version !== 1 ||
+    !hasOnlyKeys(value, ["version", "active", "themes"]) ||
+    typeof value.active !== "string"
+  ) {
+    return null;
+  }
+  const builtIn = getBuiltInTheme(value.active);
+  const custom = themes.find((theme) => theme.id === value.active);
+  const scheme = colorSchemes.find(
+    (item) => item.light === builtIn?.id || item.dark === builtIn?.id,
+  );
+  return {
+    mode: builtIn?.base ?? custom?.base ?? "system",
+    scheme: custom?.id ?? scheme?.id ?? DEFAULT_SCHEME,
+    themes,
+    version: 2,
+  };
 };
 
 export const parseThemeFile = (text: string): CustomTheme[] => {

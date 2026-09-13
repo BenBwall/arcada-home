@@ -8,11 +8,12 @@
     isTheme,
   } from "$theme/theme-schema";
 
+  import { colorSchemes, getColorScheme } from "$theme/built-in-themes";
   import { onMount, tick } from "svelte";
   import Button from "$components/Button.svelte";
   import ColorPicker from "$components/ColorPicker.svelte";
   import Select from "$components/Select.svelte";
-  import { applyTheme } from "$theme/theme";
+  import { applyCustomTheme } from "$theme/theme";
   import { readCurrentColors } from "$theme/color-utils";
 
   let {
@@ -35,7 +36,7 @@
   let errors = $state<Partial<Colors>>({});
   const hasErrors = $derived(Object.values(errors).some(Boolean));
   const preview = () => {
-    applyTheme(draft.base, draft.colors);
+    applyCustomTheme(draft);
     resolved = readCurrentColors();
   };
   onMount(() => {
@@ -71,25 +72,46 @@
   <p>Preview changes across the page. Save to keep them.</p>
   <label
     >Theme name
-    <input bind:value={draft.name} maxlength={MAX_NAME_LENGTH} required autocomplete="off" /></label
+    <input id="theme-name" bind:value={draft.name} maxlength={MAX_NAME_LENGTH} required autocomplete="off" /></label
   >
 
-  <label
-    >Base appearance
-    <Select
-      value={draft.base}
-      options={[
-        { label: "Light", value: "light" },
-        { label: "Dark", value: "dark" },
-      ]}
-      onchange={(event) => {
-        if (isTheme(event.currentTarget.value)) {
-          draft.base = event.currentTarget.value;
-          preview();
-        }
-      }}
-    /></label
-  >
+  <div class="base-selectors">
+    <label for="theme-base-appearance">Base appearance
+      <Select
+        id="theme-base-appearance"
+        aria-describedby="theme-base-help"
+        value={draft.base}
+        options={[
+          { label: "Light", value: "light" },
+          { label: "Dark", value: "dark" },
+        ]}
+        onchange={(event) => {
+          if (isTheme(event.currentTarget.value)) {
+            draft.base = event.currentTarget.value;
+            reset();
+          }
+        }}
+      />
+    </label>
+    <label for="theme-base-scheme">Base color scheme
+      <Select
+        id="theme-base-scheme"
+        aria-describedby="theme-base-help"
+        value={draft.baseScheme ?? "classic"}
+        options={colorSchemes.map((scheme) => ({ label: scheme.name, value: scheme.id }))}
+        onchange={(event) => {
+          const scheme = getColorScheme(event.currentTarget.value);
+          if (scheme) {
+            draft.baseScheme = scheme.id;
+            reset();
+          }
+        }}
+      />
+    </label>
+  </div>
+  <p id="theme-base-help">
+    Changing either base replaces the current colors with that palette. Save to keep the result.
+  </p>
 
   <p>
     Adjust lightness, chroma, hue, and opacity in OKLCH, or enter any CSS color your browser
@@ -169,6 +191,16 @@
     font-size: 0.875rem;
     line-height: 1.5;
     margin: 0 0 0.5rem;
+  }
+  .base-selectors {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+  @media (max-width: 24rem) {
+    .base-selectors {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
   .colors {
     display: grid;

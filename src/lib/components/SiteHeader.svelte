@@ -71,7 +71,7 @@
     background-color: var(--nav-active-background);
   }
 
-  a:active {
+  a:not([aria-current="page"]):active {
     background-color: var(--color-active);
   }
 

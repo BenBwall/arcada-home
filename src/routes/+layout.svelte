@@ -1,4 +1,6 @@
 <script lang="ts">
+  import "$theme/themes.css";
+
   import type { LayoutProps } from "$route-types/$types";
   import SiteHeader from "$components/SiteHeader.svelte";
   let { children }: LayoutProps = $props();
@@ -29,7 +31,6 @@
       --nav-active-text: oklch(0.2 0 0);
     }
 
-    :root,
     :root[data-theme="light"] {
       color-scheme: light;
       --color-background: oklch(1 0 0);
@@ -38,7 +39,7 @@
       --color-muted: oklch(0.5 0.01 255);
       --color-primary: oklch(0.5 0.3 285);
       --color-secondary: oklch(0.4 0.08 185);
-      --color-accent: oklch(0.7 0.2 5);
+      --color-accent: #9b4562;
       --color-border: oklch(0.85 0 0);
       --color-border-strong: oklch(0.7 0 0);
       --color-hover: oklch(0.95 0.001 285);
@@ -53,27 +54,6 @@
       color: var(--color-text);
       font-family: Inter, ui-sans-serif, system-ui, sans-serif;
       background-color: var(--color-background);
-    }
-
-    /* Keep the prerendered pages readable when JavaScript is disabled. */
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme]) {
-        color-scheme: dark;
-        --color-background: oklch(0.2 0 0);
-        --color-surface: oklch(0.22 0 0);
-        --color-text: oklch(1 0 0);
-        --color-muted: oklch(0.8 0 0);
-        --color-primary: oklch(0.7 0.2 290);
-        --color-secondary: oklch(0.8 0.15 185);
-        --color-accent: oklch(0.7 0.2 5);
-        --color-border: oklch(0.3 0 0);
-        --color-border-strong: oklch(0.5 0 0);
-        --color-hover: oklch(0.2 0 0);
-        --color-active: oklch(0.2 0 0);
-        --color-shadow: oklch(0 0 0 / 0.25);
-        --nav-active-background: oklch(0.9 0 0);
-        --nav-active-text: oklch(0.2 0 0);
-      }
     }
 
     /* Shared colors for browser-rendered page details. */
