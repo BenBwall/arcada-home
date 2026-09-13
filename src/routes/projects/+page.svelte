@@ -41,13 +41,9 @@
     margin: 0 0 1rem;
   }
   a {
-    color: var(--color-primary);
     text-underline-offset: 0.25em;
     font-size: 0.875rem;
     line-height: 1.6;
-  }
-  a:hover {
-    color: var(--color-accent);
   }
   a:focus-visible {
     outline: 2px solid var(--color-accent);

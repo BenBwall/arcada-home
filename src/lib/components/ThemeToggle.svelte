@@ -217,14 +217,14 @@
     close();
   }}
 >
-  <header>
+  <div class="dialog-heading">
     <h2 id="appearance-heading">
       {draft ? "Customize theme" : "Appearance"}
     </h2>
     <button type="button" aria-label="Close appearance" title="Close appearance" onclick={close}>
       <X size={20} aria-hidden="true" />
     </button>
-  </header>
+  </div>
   {#if draft}
     <ThemeEditor initial={draft} onsave={save} oncancel={cancelEdit} />
   {:else}
@@ -232,18 +232,18 @@
       >Theme
       <Select
         value={appearance.active}
+        options={[
+          { label: "System", value: "system" },
+          { label: "Light", value: "light" },
+          { label: "Dark", value: "dark" },
+          ...appearance.themes.map((theme) => ({ label: theme.name, value: theme.id })),
+        ]}
         onchange={(event) =>
           persist({
             ...appearance,
             active: event.currentTarget.value,
           })}
-      >
-        <option value="system">System</option>
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-        {#each appearance.themes as theme (theme.id)}<option value={theme.id}>{theme.name}</option
-          >{/each}
-      </Select></label
+      /></label
     >
 
     <p>System follows your device’s appearance. Custom themes are saved in this browser.</p>
@@ -256,7 +256,7 @@
         <Button variant="primary" onclick={() => customize()}>Customize</Button>
       {/if}
     </div>
-    <footer>
+    <div class="theme-files">
       <h3>Theme files</h3>
       <p>Import a theme file or export your saved themes.</p>
       <div class="actions">
@@ -265,7 +265,7 @@
         </Button>
         <Button disabled={!appearance.themes.length} onclick={exportAll}>Export themes</Button>
       </div>
-    </footer>
+    </div>
   {/if}
   <input
     bind:this={fileInput}
@@ -316,7 +316,7 @@
   dialog::backdrop {
     background-color: var(--color-shadow);
   }
-  header {
+  .dialog-heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -327,7 +327,7 @@
     margin: 0;
     font-size: 1.125rem;
   }
-  header button {
+  .dialog-heading button {
     display: grid;
     place-items: center;
     width: 2.25rem;
@@ -339,7 +339,7 @@
     border-radius: 0.5rem;
     cursor: pointer;
   }
-  header button:hover {
+  .dialog-heading button:hover {
     color: var(--color-text);
     background-color: var(--color-hover);
   }
@@ -370,7 +370,7 @@
     grid-auto-columns: minmax(0, 1fr);
     gap: 0.625rem;
   }
-  footer {
+  .theme-files {
     margin-top: 1.5rem;
     padding-top: 1.25rem;
     border-top: 1px solid var(--color-border);
@@ -380,7 +380,7 @@
     font-size: 0.875rem;
     font-weight: 600;
   }
-  footer p {
+  .theme-files p {
     margin-top: 0.375rem;
   }
   @media print {

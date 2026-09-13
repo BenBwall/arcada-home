@@ -53,9 +53,6 @@
     text-decoration: none;
     background-color: transparent;
     border-radius: 0.5rem;
-    transition:
-      color 120ms ease,
-      background-color 120ms ease;
   }
 
   a:hover {
@@ -87,9 +84,11 @@
     }
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  @media (prefers-reduced-motion: no-preference) {
     a {
-      transition: none;
+      transition:
+        color 120ms ease,
+        background-color 120ms ease;
     }
   }
 

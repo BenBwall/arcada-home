@@ -1,16 +1,19 @@
 <script lang="ts">
   import type { HTMLSelectAttributes } from "svelte/elements";
-  import type { Snippet } from "svelte";
 
   let {
-    children,
+    options,
     value = $bindable(),
     ...attributes
-  }: HTMLSelectAttributes & { children: Snippet } = $props();
+  }: HTMLSelectAttributes & { options: readonly { label: string; value: string }[] } = $props();
 </script>
 
 <span>
-  <select {...attributes} bind:value>{@render children()}</select>
+  <select {...attributes} bind:value>
+    {#each options as option (option.value)}
+      <option value={option.value}>{option.label}</option>
+    {/each}
+  </select>
 </span>
 
 <style>
@@ -31,7 +34,6 @@
     clip-path: polygon(0 0, 100% 0, 50% 100%);
     translate: 0 -50%;
     rotate: 0deg;
-    transition: rotate 300ms ease;
     pointer-events: none;
   }
 
@@ -39,9 +41,9 @@
     rotate: 180deg;
   }
 
-  @media (prefers-reduced-motion: reduce) {
+  @media (prefers-reduced-motion: no-preference) {
     span::after {
-      transition: none;
+      transition: rotate 300ms ease;
     }
   }
 

@@ -76,11 +76,7 @@
     gap: 0.4rem;
     min-height: 2rem;
     margin-top: 0.75rem;
-    color: var(--color-primary);
     text-underline-offset: 0.25em;
-  }
-  a:hover {
-    color: var(--color-accent);
   }
   a:focus-visible {
     outline: 2px solid var(--color-accent);

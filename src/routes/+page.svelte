@@ -23,7 +23,7 @@
       </p>
     </Prose>
   </div>
-  <div class="about-gallery" aria-label="Photos of me">
+  <div class="about-gallery" role="group" aria-label="Photos of me">
     <figure>
       <img
         src={asset("/sitting-outdoors-by-the-sea.JPEG")}

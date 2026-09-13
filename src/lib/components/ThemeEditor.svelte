@@ -78,15 +78,17 @@
     >Base appearance
     <Select
       value={draft.base}
+      options={[
+        { label: "Light", value: "light" },
+        { label: "Dark", value: "dark" },
+      ]}
       onchange={(event) => {
         if (isTheme(event.currentTarget.value)) {
           draft.base = event.currentTarget.value;
           preview();
         }
       }}
-    >
-      <option value="light">Light</option><option value="dark">Dark</option>
-    </Select></label
+    /></label
   >
 
   <p>
@@ -124,7 +126,7 @@
     </div>
   {/if}
 
-  <footer>
+  <div class="form-actions">
     <div>
       <Button onclick={oncancel}>Cancel</Button>
       <Button type="submit" variant="primary" disabled={!draft.name.trim() || hasErrors}
@@ -132,7 +134,7 @@
       >
     </div>
     <Button variant="quiet" onclick={reset}>Reset colors</Button>
-  </footer>
+  </div>
 </form>
 
 <style>
@@ -187,14 +189,14 @@
     font-family: ui-monospace, monospace;
     font-size: 0.875rem;
   }
-  footer {
+  .form-actions {
     display: grid;
     gap: 0.5rem;
     margin-top: 0.75rem;
     padding-top: 1rem;
     border-top: 1px solid var(--color-border);
   }
-  footer > div {
+  .form-actions > div {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.625rem;

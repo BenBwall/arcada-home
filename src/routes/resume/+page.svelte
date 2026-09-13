@@ -220,12 +220,8 @@
     list-style: none;
   }
   a {
-    color: var(--color-primary);
     text-underline-offset: 0.25em;
     overflow-wrap: anywhere;
-  }
-  a:hover {
-    color: var(--color-accent);
   }
   a:focus-visible {
     outline: 2px solid var(--color-accent);
