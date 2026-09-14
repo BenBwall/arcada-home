@@ -9,11 +9,16 @@ The previous Svelte application is preserved on `codex/svelte-archive` at commit
 Requires Bun 1.4.2 or newer.
 
 ```powershell
+git submodule update --init --recursive
 bun install --frozen-lockfile
 bun run dev
 ```
 
 Open `http://127.0.0.1:4173/~bergenwb/`. Saving files under `src` or `static` rebuilds the site. Refresh the browser to see the new output.
+
+The homepage embeds the `CardGame` root component from [BenBwall/cardgame-lit](https://github.com/BenBwall/cardgame-lit), pinned as a Git submodule at `vendor/cardgame`. It is a local single-player free-play table: draw, sort, play, undo, and reshuffle. No game server, accounts, or multiplayer are included. Games live in the current tab and reset on reload. JavaScript is required only for the interactive game; the rest of the homepage remains static.
+
+The `$cardgame` alias imports the submodule's `src/index.ts`. The static build emits its source as readable ES modules beside the shared Lit bundle, resolves the alias with the browser import map, and includes the game sources in the release hash. No CDN or game API is used. Development also watches `vendor/cardgame/src`. Run the port's checks independently with `bun run --cwd vendor/cardgame check` and `bun test vendor/cardgame/tests`.
 
 ```powershell
 bun run build          # Clean static build into build/
@@ -74,6 +79,8 @@ git push origin main
 ```
 
 The existing origin push URLs publish the commit to GitHub and to the Domus Git receiver. Its hooks build the exact pushed revision in a fresh directory, validate it, then copy assets before HTML to `H:\html`. Existing unrelated files and older assets are preserved.
+
+The receiver exports the exact submodule commits recorded in the pushed tree, fetching their public HTTPS repositories during the build. Commit and push game changes in `vendor/cardgame` before updating the parent gitlink. After first adding this submodule, refresh the installed deployment hooks with `bun run deploy:setup --no-remote-changes` before the next deployment.
 
 To rebuild and republish the latest main already in the Domus receiver:
 

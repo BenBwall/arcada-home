@@ -78,7 +78,7 @@ console.log(`Preview: http://127.0.0.1:${server.port}${base}/`);
 if (watching) {
   const debounceMs = 150;
   let timer: ReturnType<typeof setTimeout> | undefined;
-  for (const directory of ["src", "static"]) {
+  for (const directory of ["src", "static", "vendor/cardgame/src"]) {
     watch(join(root, directory), { recursive: true }, () => {
       clearTimeout(timer);
       timer = setTimeout(rebuild, debounceMs);

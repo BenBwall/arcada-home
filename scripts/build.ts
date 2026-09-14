@@ -9,9 +9,14 @@ import {
   runCommand,
   withLock,
 } from "$scripts/shared";
+import { exportSubmodules } from "$scripts/submodules";
 import { randomUUID } from "node:crypto";
 
-const exportRevision = (settings: DeploymentSettings, revision: string, work: string): string => {
+export const exportRevision = (
+  settings: DeploymentSettings,
+  revision: string,
+  work: string,
+): string => {
   const source = resolveChildPath(work, "source");
   const archive = resolveChildPath(work, "source.tar");
   fs.mkdirSync(source, { recursive: true });
@@ -26,6 +31,8 @@ const exportRevision = (settings: DeploymentSettings, revision: string, work: st
   ]);
   runCommand(settings.tar, ["-xf", archive, "-C", source]);
   listFiles(source); // Reject links and junctions before running any project code.
+  exportSubmodules(settings, revision, source, work);
+  listFiles(source);
   for (const required of ["package.json", "bun.lock"] as const) {
     if (!fs.existsSync(resolveChildPath(source, required))) {
       throw new Error(`Pushed main is missing ${required}. Commit the Bun app before pushing.`);

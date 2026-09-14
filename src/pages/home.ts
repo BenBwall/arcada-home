@@ -71,9 +71,25 @@ export const homePage = () => html`
       </figure>
     </div>
   </section>
+  <section class="card-game-section" aria-labelledby="card-game-title">
+    <h2 id="card-game-title">Take a card break</h2>
+    <p>A single-player card table. Draw, arrange, and play a hand at your own pace.</p>
+    <div id="card-game-mount"></div>
+    <noscript>Enable JavaScript to play the card game locally in your browser.</noscript>
+  </section>
 `;
 
 export const homeStyles = css`
+  .card-game-section {
+    max-width: 68rem;
+    margin: 2rem auto;
+  }
+
+  .card-game-section > p {
+    color: var(--color-muted);
+    margin-bottom: 1.5rem;
+  }
+
   .home-page {
     display: grid;
     grid-template-columns: 1.1fr 1fr;

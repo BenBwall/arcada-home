@@ -109,6 +109,7 @@ const releaseId = async (): Promise<string> => {
   const files = [
     ...listFiles(join(root, "src")),
     ...listFiles(join(root, "static")),
+    ...listFiles(join(root, "vendor/cardgame/src")),
     join(root, "bun.lock"),
     join(root, "scripts/lit-vendor.mts"),
     join(root, "scripts/lucide-vendor.mts"),
@@ -124,25 +125,33 @@ const releaseId = async (): Promise<string> => {
 };
 
 const buildAssets = async (assets: string): Promise<void> => {
-  const sources = listFiles(join(root, "src"));
+  const sourceRoots = [
+    { destination: assets, directory: join(root, "src") },
+    { destination: join(assets, "vendor/cardgame"), directory: join(root, "vendor/cardgame/src") },
+  ];
   await Promise.all(
-    sources.filter(publicModule).map(async (filename) => {
-      const destination = join(
-        assets,
-        relative(join(root, "src"), filename).replace(/\.ts$/, ".js"),
+    sourceRoots.map(async ({ directory, destination: moduleOutput }) => {
+      const sources = listFiles(directory);
+      await Promise.all(
+        sources.filter(publicModule).map(async (filename) => {
+          const destination = join(
+            moduleOutput,
+            relative(directory, filename).replace(/\.ts$/, ".js"),
+          );
+          const result = ts.transpileModule(await readFile(filename, "utf8"), {
+            compilerOptions: {
+              module: ts.ModuleKind.ESNext,
+              newLine: ts.NewLineKind.LineFeed,
+              removeComments: false,
+              target: ts.ScriptTarget.ESNext,
+              useDefineForClassFields: false,
+              verbatimModuleSyntax: true,
+            },
+            fileName: filename,
+          });
+          await write(destination, await readable(destination, result.outputText));
+        }),
       );
-      const result = ts.transpileModule(await readFile(filename, "utf8"), {
-        compilerOptions: {
-          module: ts.ModuleKind.ESNext,
-          newLine: ts.NewLineKind.LineFeed,
-          removeComments: false,
-          target: ts.ScriptTarget.ESNext,
-          useDefineForClassFields: false,
-          verbatimModuleSyntax: true,
-        },
-        fileName: filename,
-      });
-      await write(destination, await readable(destination, result.outputText));
     }),
   );
   const styles = {
@@ -245,6 +254,7 @@ const build = async (): Promise<void> => {
   const importMap = JSON.stringify(
     {
       imports: {
+        $cardgame: asset("_app/vendor/cardgame/index.js"),
         "$components/": asset("_app/lib/components/"),
         "$site/": asset("_app/lib/"),
         "$theme/": asset("_app/lib/theme/"),

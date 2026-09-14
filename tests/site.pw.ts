@@ -115,7 +115,7 @@ test("custom themes support editing, validation, OKLCH, cancel, export, import a
   await chroma.press("Tab");
   await expect(chroma).toHaveValue("0.123456");
   await page.getByRole("button", { exact: true, name: "Save theme" }).click();
-  await expect(page.getByRole("status")).toHaveText("Theme saved.");
+  await expect(page.locator("appearance-panel").getByRole("status")).toHaveText("Theme saved.");
   await page.getByRole("button", { exact: true, name: "Edit" }).click();
   await background.fill("red");
   await page.getByRole("button", { exact: true, name: "Cancel" }).click();
@@ -133,9 +133,11 @@ test("custom themes support editing, validation, OKLCH, cancel, export, import a
     throw new Error("Export did not produce a file.");
   }
   await page.locator('input[type="file"]').setInputFiles(file);
-  await expect(page.getByRole("status")).toHaveText("Themes imported. Choose one to try it.");
+  await expect(page.locator("appearance-panel").getByRole("status")).toHaveText(
+    "Themes imported. Choose one to try it.",
+  );
   await page.getByRole("button", { exact: true, name: "Delete" }).click();
-  await expect(page.getByRole("status")).toHaveText("Theme deleted.");
+  await expect(page.locator("appearance-panel").getByRole("status")).toHaveText("Theme deleted.");
   await page.locator('input[type="file"]').setInputFiles({
     buffer: Buffer.from("{}"),
     mimeType: "application/json",

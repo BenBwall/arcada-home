@@ -6,6 +6,7 @@
     "suspicious": "error"
   },
   "ignorePatterns": [
+    "vendor/**",
     "node_modules/**",
     ".svelte-kit/**",
     "build/**",
