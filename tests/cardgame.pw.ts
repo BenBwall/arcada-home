@@ -63,6 +63,11 @@ test("a complete local game remains usable at narrow widths and both themes", as
   test.setTimeout(60_000);
   await page.goto("./");
   const game = page.locator("card-game");
+  await expect(game.getByRole("button", { exact: true, name: "Fan layout" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await game.getByRole("button", { exact: true, name: "Grid layout" }).click();
   const draw = game.getByRole("button", { name: "Draw a card" });
   for (let index = 0; index < 52; index++) {
     await draw.click();
