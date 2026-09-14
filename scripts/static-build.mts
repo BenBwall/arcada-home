@@ -264,6 +264,7 @@ const build = async (): Promise<void> => {
         lit: asset("_app/vendor/lit.js"),
         "lit/directives/if-defined.js": asset("_app/vendor/lit.js"),
         "lit/directives/live.js": asset("_app/vendor/lit.js"),
+        "lit/directives/repeat.js": asset("_app/vendor/lit.js"),
         "lit/directives/unsafe-html.js": asset("_app/vendor/lit.js"),
       },
     },
