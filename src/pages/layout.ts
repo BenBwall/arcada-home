@@ -1,30 +1,28 @@
+import { type CSSResult, css } from "lit";
 import { asset } from "$site/paths.js";
-import { css } from "lit";
 import { html } from "@lit-labs/ssr/lib/server-template.js";
 import { siteHeader } from "$components/site-header.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 export const pageLayout = (
-  route: { name: string; path: string; title: string; render: () => unknown },
+  route: { name: string; path: string; title: string; description: string; render: () => unknown },
   importMap: string,
+  styles: CSSResult[],
+  modules: string[],
 ) => html`<!doctype html>
   <html lang="en-US" data-base=${process.env.BASE_PATH} data-assets=${process.env.ASSET_PATH}>
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta name="generator" content="Lit static build" />
+      <meta name="description" content=${route.description} />
       <link rel="icon" href="data:," />
       <title>${route.title}</title>
-      ${[
-        "themes",
-        "site",
-        "site-header",
-        route.name,
-        ...(route.name === "projects" ? ["project-row"] : []),
-      ].map((name) => html` <link rel="stylesheet" href=${asset(`_app/styles/${name}.css`)} />`)}
+      ${unsafeHTML(`<style>${styles.map((style) => style.cssText).join("\n")}</style>`)}
       <script type="importmap">
         ${unsafeHTML(importMap)}
       </script>
+      ${modules.map((path) => html`<link rel="modulepreload" href=${asset(path)} />`)}
       <script type="module" src=${asset("_app/client.js")}></script>
     </head>
     <body>

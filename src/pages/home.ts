@@ -2,6 +2,19 @@ import { asset } from "$site/paths.js";
 import { css } from "lit";
 import { html } from "@lit-labs/ssr/lib/server-template.js";
 
+// Source widths in physical pixels for responsive image selection.
+// eslint-disable-next-line no-magic-numbers
+export const photoWidths = [320, 480, 640, 960] as const;
+export const homePhotos = [
+  "sitting-outdoors-by-the-sea",
+  "standing-on-a-cliff-on-the-beach",
+] as const;
+const photoSizes = "(max-width: 52rem) min(248px, calc(50vw - 24px), calc(46vw - 8px)), 240px";
+const photoSources = (name: string, format: "avif" | "webp" = "webp") =>
+  photoWidths
+    .map((width) => `${asset(`_app/images/${name}-${width}.${format}`)} ${width}w`)
+    .join(", ");
+
 export const homePage = () => html`
   <section class="home-page" aria-labelledby="about-title">
     <div class="about-copy">
@@ -19,21 +32,42 @@ export const homePage = () => html`
     </div>
     <div class="about-gallery" role="group" aria-label="Photos of me">
       <figure>
-        <img
-          src="${asset("/sitting-outdoors-by-the-sea.JPEG")}"
-          alt="Me sitting outdoors by the sea"
-          width="1200"
-          height="1600"
-        />
+        <picture>
+          <source
+            type="image/avif"
+            srcset=${photoSources(homePhotos[0], "avif")}
+            sizes=${photoSizes}
+          />
+          <img
+            src=${asset("_app/images/sitting-outdoors-by-the-sea-640.webp")}
+            srcset=${photoSources(homePhotos[0])}
+            sizes=${photoSizes}
+            decoding="async"
+            fetchpriority="high"
+            alt="Me sitting outdoors by the sea"
+            width="1200"
+            height="1600"
+          />
+        </picture>
       </figure>
       <figure>
-        <img
-          src="${asset("/standing-on-a-cliff-on-the-beach.JPEG")}"
-          alt="Me standing on a cliff on the beach"
-          width="1200"
-          height="1600"
-          loading="lazy"
-        />
+        <picture>
+          <source
+            type="image/avif"
+            srcset=${photoSources(homePhotos[1], "avif")}
+            sizes=${photoSizes}
+          />
+          <img
+            src=${asset("_app/images/standing-on-a-cliff-on-the-beach-640.webp")}
+            srcset=${photoSources(homePhotos[1])}
+            sizes=${photoSizes}
+            decoding="async"
+            alt="Me standing on a cliff on the beach"
+            width="1200"
+            height="1600"
+            loading="lazy"
+          />
+        </picture>
       </figure>
     </div>
   </section>

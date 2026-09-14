@@ -33,7 +33,7 @@ bun run test           # Build and run browser tests in Microsoft Edge
 - `scripts/static-build.mts`: static renderer and output writer.
 - `scripts/lit-vendor.mts`: the entry point for the separate Lit library bundle.
 
-Write ordinary CSS inside Lit’s `css` tagged templates; no additional CSS-in-JS library is needed. The build extracts static page and global styles into readable CSS files. Interactive component styles stay with their JavaScript and are included in server-rendered shadow roots so they work before JavaScript loads.
+Write ordinary CSS inside Lit’s `css` tagged templates; no additional CSS-in-JS library is needed. The build includes static page and global styles directly in each document to avoid render-blocking CSS requests, and also exports readable CSS files for inspection. Interactive component styles stay with their JavaScript and are included in server-rendered shadow roots so they work before JavaScript loads.
 
 Each build creates:
 
@@ -55,7 +55,9 @@ build/
 
 Application TypeScript is emitted as modern ES modules: types are removed, but class names, method names, imports, comments, and template literals remain readable. An import map resolves the shared aliases in browsers. Application modules are not bundled or minified. Lit and its hydration support are bundled separately; third-party internal names may still be short because that is how the packages are distributed.
 
-The release directory is a deterministic content hash. Filenames within it remain descriptive, and an older open page keeps referencing a complete set of matching assets during deployment. Use the current page's script URL or `_app/version.json` to find the active release.
+The build generates responsive AVIF versions with WebP fallbacks of the original photos with Sharp. The first photo gets high fetch priority, and module preload links avoid waiting for each level of JavaScript imports. Each page includes its own search description.
+
+The release directory is a deterministic content hash, including the original image bytes. Filenames within it remain descriptive, and an older open page keeps referencing a complete set of matching assets during deployment. Use the current page's script URL or `_app/version.json` to find the active release. Apache receives a one-year immutable cache policy inside each versioned directory; HTML and version metadata are revalidated. The local development server deliberately disables caching.
 
 Lit SSR produces declarative Shadow DOM for the initial appearance panel. Its content and styles render before JavaScript, and Lit attaches behavior to the existing nodes. Small hydration comments inside that component are required. Static page templates do not emit hydration comments. The build formats the static HTML, JavaScript, and CSS. It preserves the server-rendered appearance panel and JavaScript template-literal whitespace exactly so server and browser hydration stay consistent.
 

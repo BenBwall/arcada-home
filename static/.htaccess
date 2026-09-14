@@ -1,0 +1,6 @@
+# Revalidate documents so visitors receive the newest release URLs.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|json)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

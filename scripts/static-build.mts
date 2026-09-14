@@ -1,7 +1,7 @@
 import "$components/appearance-panel.js";
 import { copyDirectory, listFiles, removeDirectory } from "$scripts/shared";
 import { dirname, join, relative, resolve } from "node:path";
-import { homePage, homeStyles } from "$pages/home.js";
+import { homePage, homePhotos, homeStyles, photoWidths } from "$pages/home.js";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { pageLayout, siteStyles } from "$pages/layout.js";
 import { projectsPage, projectsStyles } from "$pages/projects.js";
@@ -12,22 +12,44 @@ import { createHash } from "node:crypto";
 import { format } from "oxfmt";
 import { projectRowStyles } from "$components/project-row.js";
 import { render } from "@lit-labs/ssr";
+import sharp from "sharp";
 import { siteHeaderStyles } from "$components/site-header.js";
 import { themeStyles } from "$theme/built-in-themes.js";
 import ts from "typescript";
 
+const AVIF_QUALITY = 50;
+const WEBP_QUALITY = 80;
 const PRINT_WIDTH = 100;
 const RELEASE_ID_LENGTH = 12;
 
 const root = resolve(import.meta.dirname, "..");
 const output = join(root, "build");
 const routes = [
-  { name: "home", path: "/", render: homePage, title: "Home" },
-  { name: "resume", path: "/resume/", render: resumePage, title: "Resume | Ben Bergenwall" },
   {
+    description:
+      "Ben Bergenwall, web developer and Information Technology student at Arcada University of Applied Sciences. About me, resume, and selected projects.",
+    name: "home",
+    path: "/",
+    render: homePage,
+    styles: [homeStyles],
+    title: "Home",
+  },
+  {
+    description:
+      "Ben Bergenwall’s resume: experience, education, and skills in web development and Information Technology.",
+    name: "resume",
+    path: "/resume/",
+    render: resumePage,
+    styles: [resumeStyles],
+    title: "Resume | Ben Bergenwall",
+  },
+  {
+    description:
+      "Selected software and web development projects by Ben Bergenwall, with project details and links.",
     name: "projects",
     path: "/projects/",
     render: projectsPage,
+    styles: [projectsStyles, projectRowStyles],
     title: "Projects | Ben Bergenwall",
   },
 ];
@@ -80,6 +102,7 @@ const releaseId = async (): Promise<string> => {
   const hash = createHash("sha256");
   const files = [
     ...listFiles(join(root, "src")),
+    ...listFiles(join(root, "static")),
     join(root, "bun.lock"),
     join(root, "scripts/lit-vendor.mts"),
     join(root, "scripts/static-build.mts"),
@@ -158,6 +181,38 @@ const build = async (): Promise<void> => {
   copyDirectory(join(root, "static"), output);
 
   await buildAssets(assets);
+  await mkdir(join(assets, "images"), { recursive: true });
+  await Promise.all(
+    homePhotos.flatMap((name) =>
+      photoWidths.map(async (width) => {
+        const image = sharp(join(root, "static", `${name}.JPEG`))
+          .rotate()
+          .resize({ width, withoutEnlargement: true });
+        await Promise.all([
+          image
+            .clone()
+            .avif({ quality: AVIF_QUALITY })
+            .toFile(join(assets, "images", `${name}-${width}.avif`)),
+          image
+            .webp({ quality: WEBP_QUALITY })
+            .toFile(join(assets, "images", `${name}-${width}.webp`)),
+        ]);
+      }),
+    ),
+  );
+  await write(
+    join(assets, ".htaccess"),
+    '<IfModule mod_headers.c>\n  Header set Cache-Control "public, max-age=31536000, immutable"\n</IfModule>\n',
+  );
+  const modules = [
+    "_app/vendor/lit.js",
+    ...listFiles(join(root, "src"))
+      .filter(publicModule)
+      .map(
+        (filename) =>
+          `_app/${relative(join(root, "src"), filename).replaceAll("\\", "/").replace(/\.ts$/, ".js")}`,
+      ),
+  ];
 
   const importMap = JSON.stringify(
     {
@@ -176,7 +231,12 @@ const build = async (): Promise<void> => {
 
   await Promise.all(
     routes.map(async (route) => {
-      const page = pageLayout(route, importMap);
+      const page = pageLayout(
+        route,
+        importMap,
+        [themeStyles, siteStyles, siteHeaderStyles, ...route.styles],
+        modules,
+      );
       // Preserve template whitespace and hydration boundaries. Remove only Lit SSR's
       // obsolete shadowroot attribute; modern browsers use shadowrootmode.
       await write(
