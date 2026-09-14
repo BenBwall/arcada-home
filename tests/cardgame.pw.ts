@@ -59,6 +59,8 @@ test("homepage card game supports keyboard play, undo, sorting, and reset offlin
 });
 
 test("a complete local game remains usable at narrow widths and both themes", async ({ page }) => {
+  // Allow all 52 real card movements to settle between pointer clicks.
+  test.setTimeout(60_000);
   await page.goto("./");
   const game = page.locator("card-game");
   const draw = game.getByRole("button", { name: "Draw a card" });
