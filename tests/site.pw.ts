@@ -12,7 +12,7 @@ test("all pages are static, accessible without JavaScript, and responsive", asyn
   const context = await browser.newContext({ javaScriptEnabled: false });
   const page = await context.newPage();
   for (const route of routes) {
-    await page.goto(`http://127.0.0.1:4173/~bergenwb/${route.path}`);
+    await page.goto(`./${route.path}`);
     await expect(page.getByRole("heading", { level: 1, name: route.heading })).toBeVisible();
     await expect(page.locator('nav a[aria-current="page"]')).toHaveCount(1);
     for (const width of [320, 390, 768, 1440]) {
@@ -210,7 +210,7 @@ test("saved colors apply on every page even when all application modules are blo
     await context.route("**/_app/**/*.js", (route) => route.abort());
     const page = await context.newPage();
     for (const route of routes) {
-      await page.goto(`http://127.0.0.1:4173/~bergenwb/${route.path}`);
+      await page.goto(`./${route.path}`);
       await expect(page.locator("html")).toHaveAttribute("data-theme", scenario.theme);
       if (scenario.theme === "dark") {
         await expect(page.locator("body")).toHaveCSS("background-color", "oklch(0.2 0 0)");

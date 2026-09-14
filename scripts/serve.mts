@@ -1,39 +1,88 @@
+import { existsSync, watch } from "node:fs";
 import { extname, join, resolve, sep } from "node:path";
-import { watch } from "node:fs";
 
 const DEFAULT_PORT = 4173;
 const BAD_REQUEST = 400;
 const REDIRECT = 302;
 const NOT_FOUND = 404;
+const DEBOUNCE_MS = 150;
 
 const root = resolve(import.meta.dirname, "..");
-const output = join(root, "build");
 const base = (process.env.BASE_PATH ?? "/~bergenwb").replace(/\/$/, "");
 const port = Number(process.env.PORT ?? DEFAULT_PORT);
 const watching = process.argv.includes("--watch");
-let building = false;
+const siblingSource = resolve(root, "../cardgame-lit/src");
+const cardgameSource = resolve(
+  root,
+  process.env.CARDGAME_SOURCE_DIR ??
+    (existsSync(siblingSource) ? siblingSource : "vendor/cardgame/src"),
+);
+let output = join(root, "build");
+let slot = "b";
+let revision = `${Date.now()}:0`;
+let building: Promise<void> | undefined;
+let dirty = false;
 
-const rebuild = (): void => {
+const rebuild = (): Promise<void> => {
+  dirty = true;
   if (building) {
-    return;
+    return building;
   }
-  building = true;
-  try {
-    const result = Bun.spawnSync([process.execPath, "run", "build"], {
-      cwd: root,
-      stderr: "inherit",
-      stdout: "inherit",
-    });
-    if (result.exitCode !== 0) {
-      console.error("Build failed; fix the reported error and save again.");
+  building = (async () => {
+    while (dirty) {
+      dirty = false;
+      const nextSlot = slot === "a" ? "b" : "a";
+      try {
+        const child = Bun.spawn([process.execPath, "run", "build"], {
+          cwd: root,
+          env: {
+            ...process.env,
+            BASE_PATH: base,
+            CARDGAME_SOURCE_DIR: cardgameSource,
+            DEV_PREVIEW_SLOT: nextSlot,
+            PORT: String(port),
+          },
+          stderr: "inherit",
+          stdout: "inherit",
+        });
+        // oxlint-disable-next-line eslint/no-await-in-loop -- Finish this build before processing another save.
+        if ((await child.exited) === 0) {
+          slot = nextSlot;
+          output = join(root, ".cache/dev-preview", String(port), slot);
+          revision = `${Date.now()}:${slot}`;
+          console.log("Preview updated; connected browsers will reload.");
+        } else {
+          console.error(
+            "Build failed; keeping the last successful preview. Save again after fixing the error.",
+          );
+        }
+      } catch (error) {
+        console.error("Build failed:", error);
+      }
     }
-  } finally {
-    building = false;
-  }
+  })().finally(() => {
+    building = undefined;
+  });
+  return building;
 };
 
 if (watching) {
-  rebuild();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const directories = new Set([
+    join(root, "src"),
+    join(root, "static"),
+    join(root, "scripts"),
+    cardgameSource,
+  ]);
+  for (const directory of directories) {
+    watch(directory, { recursive: true }, () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        void rebuild();
+      }, DEBOUNCE_MS);
+    });
+  }
+  await rebuild();
 }
 
 const server = Bun.serve({
@@ -51,6 +100,22 @@ const server = Bun.serve({
     if (!pathname.startsWith(`${base}/`)) {
       return new Response("Not found", { status: NOT_FOUND });
     }
+    if (watching && pathname === `${base}/__dev/revision`) {
+      return Response.json({ revision }, { headers: { "Cache-Control": "no-store" } });
+    }
+    if (watching && pathname === `${base}/__dev/reload.js`) {
+      return new Response(
+        `const revision = document.currentScript.dataset.revision;
+setInterval(async () => {
+  try {
+    const response = await fetch(${JSON.stringify(`${base}/__dev/revision`)}, { cache: "no-store" });
+    if (response.ok && (await response.json()).revision !== revision) location.reload();
+  } catch { /* The dev server may be restarting. Try again on the next tick. */ }
+}, 500);`,
+        { headers: { "Cache-Control": "no-store", "Content-Type": "text/javascript" } },
+      );
+    }
+    const pageRevision = revision;
     const relative = pathname.slice(base.length + 1);
     const candidate = resolve(output, relative);
     if (candidate !== output && !candidate.startsWith(output + sep)) {
@@ -68,21 +133,18 @@ const server = Bun.serve({
     if (!(await file.exists())) {
       return new Response("Not found", { status: NOT_FOUND });
     }
+    if (watching && extname(filename) === ".html") {
+      const script = `<script src="${base}/__dev/reload.js" data-revision="${pageRevision}"></script>`;
+      return new Response((await file.text()).replace("</body>", `${script}</body>`), {
+        headers: { "Cache-Control": "no-store", "Content-Type": "text/html; charset=utf-8" },
+      });
+    }
     return new Response(file, { headers: { "Cache-Control": "no-store" } });
   },
   hostname: "127.0.0.1",
   port,
 });
-console.log(`Preview: http://127.0.0.1:${server.port}${base}/`);
-
+console.log(`Preview: http://localhost:${server.port}${base}/`);
 if (watching) {
-  const debounceMs = 150;
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  for (const directory of ["src", "static", "vendor/cardgame/src"]) {
-    watch(join(root, directory), { recursive: true }, () => {
-      clearTimeout(timer);
-      timer = setTimeout(rebuild, debounceMs);
-    });
-  }
-  console.log("Watching source and static files. Refresh the browser after each build.");
+  console.log(`Watching site sources and ${cardgameSource}. Browser reload is automatic.`);
 }

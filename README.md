@@ -14,11 +14,17 @@ bun install --frozen-lockfile
 bun run dev
 ```
 
-Open `http://127.0.0.1:4173/~bergenwb/`. Saving files under `src` or `static` rebuilds the site. Refresh the browser to see the new output.
+Open `http://localhost:4173/~bergenwb/`. Saving site sources, static files, or card-game sources rebuilds the preview and automatically reloads open browser tabs. Games and settings are saved in browser storage and restored after each reload.
 
-The homepage embeds the `CardGame` root component from [BenBwall/cardgame-lit](https://github.com/BenBwall/cardgame-lit), pinned as a Git submodule at `vendor/cardgame`. It is a local single-player free-play table: draw, sort, play, undo, and reshuffle. No game server, accounts, or multiplayer are included. Games live in the current tab and reset on reload. JavaScript is required only for the interactive game; the rest of the homepage remains static.
+When the sibling `../cardgame-lit/src` checkout exists, `bun run dev` reads and watches it directly, including uncommitted edits, new files, and atomic saves. Otherwise it uses `vendor/cardgame/src`. Set `CARDGAME_SOURCE_DIR` to choose another source directory. No hardlinks, junctions, or submodule updates are needed to preview game edits.
 
-The `$cardgame` alias imports the submodule's `src/index.ts`. The static build emits its source as readable ES modules beside the shared Lit bundle, resolves the alias with the browser import map, and includes the game sources in the release hash. No CDN or game API is used. Development also watches `vendor/cardgame/src`. Run the port's checks independently with `bun run --cwd vendor/cardgame check` and `bun test vendor/cardgame/tests`.
+Development builds use alternating directories under `.cache/dev-preview/<port>/`, switching the server to new output only after a successful build. A failed build leaves the previous preview available, and a save during a build queues another build. The development reload script is injected by the server; it is never added to published HTML. `bun run build` and deployment always use the pinned submodule and write to `build/`.
+
+Browser tests use port 4174 for the production preview and 4176 for the live-reload check, leaving your development browser on 4173 alone.
+
+The homepage embeds the `CardGame` root component from [BenBwall/cardgame-lit](https://github.com/BenBwall/cardgame-lit), pinned as a Git submodule at `vendor/cardgame`. Choose a free-play table (draw, sort, play, undo, and reshuffle) or Shithead against a local computer opponent. Shithead includes setup swaps, matching sets, automatic draws, pile pickups, burns, and a blind endgame. No game server, accounts, or online multiplayer are included. Both games and their settings survive mode changes and reloads through browser storage. JavaScript is required only for the interactive game; the rest of the homepage remains static.
+
+The `$cardgame` alias imports the submodule's `src/index.ts` for production. Development supplies the selected local checkout through the same browser import map. The static build emits game sources as readable ES modules beside the shared Lit bundle and includes them in the release hash. No CDN or game API is used. Run the port's checks independently in the game checkout with `bun run check` and `bun test`.
 
 ```powershell
 bun run build          # Clean static build into build/

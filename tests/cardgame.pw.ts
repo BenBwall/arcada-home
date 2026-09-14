@@ -1,5 +1,15 @@
 import { expect, test } from "@playwright/test";
 
+test("homepage offers Shithead with a local opponent", async ({ page }) => {
+  await page.goto("./");
+  const game = page.locator("card-game");
+  await game.getByRole("combobox", { exact: true, name: "Game" }).selectOption("shithead");
+  await expect(game.getByRole("heading", { exact: true, name: "Shithead" })).toBeVisible();
+  await expect(game.getByRole("heading", { exact: true, name: "Your hand (3)" })).toBeVisible();
+  await game.getByRole("button", { exact: true, name: "Start game" }).click();
+  await expect(game.getByRole("button", { exact: true, name: "Pick up pile" })).toBeVisible();
+});
+
 test("homepage card game supports keyboard play, undo, sorting, and reset offline", async ({
   page,
   context,
@@ -59,8 +69,8 @@ test("homepage card game supports keyboard play, undo, sorting, and reset offlin
 });
 
 test("a complete local game remains usable at narrow widths and both themes", async ({ page }) => {
-  // Allow all 52 real card movements to settle between pointer clicks.
-  test.setTimeout(60_000);
+  // Allow 52 draws and 52 plays to settle, including hand resizing between clicks.
+  test.setTimeout(90_000);
   await page.goto("./");
   const game = page.locator("card-game");
   await expect(game.getByRole("button", { exact: true, name: "Fan layout" })).toHaveAttribute(
@@ -78,9 +88,10 @@ test("a complete local game remains usable at narrow widths and both themes", as
     await page.emulateMedia({ colorScheme: mode });
     for (const width of [320, 390, 768, 1440]) {
       await page.setViewportSize({ height: 900, width });
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(
-        true,
-      );
+      // ResizeObserver and pending card flights settle on the next frame.
+      await expect
+        .poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth))
+        .toBe(true);
     }
   }
   for (let index = 0; index < 52; index++) {
@@ -95,7 +106,7 @@ test("a complete local game remains usable at narrow widths and both themes", as
   await expect(draw).toBeDisabled();
 });
 
-test("game instances and tabs are isolated, reload resets, and other pages have no game", async ({
+test("instances stay independent, new tabs resume saved games, and reload restores", async ({
   page,
   context,
 }) => {
@@ -111,11 +122,11 @@ test("game instances and tabs are isolated, reload resets, and other pages have 
   const secondPage = await context.newPage();
   await secondPage.goto("./");
   await expect(
-    secondPage.locator("card-game").getByRole("heading", { name: "Your hand (0)" }),
+    secondPage.locator("card-game").getByRole("heading", { name: "Your hand (1)" }),
   ).toBeVisible();
   await expect(game.getByRole("heading", { name: "Your hand (1)" })).toBeVisible();
   await page.reload();
-  await expect(game.getByRole("heading", { name: "Your hand (0)" })).toBeVisible();
+  await expect(game.getByRole("heading", { name: "Your hand (1)" })).toBeVisible();
   await page.getByRole("link", { exact: true, name: "Resume" }).click();
   await expect(page.locator("card-game")).toHaveCount(0);
   await secondPage.close();

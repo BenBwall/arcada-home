@@ -1,6 +1,6 @@
 import "$components/appearance-panel.js";
 import { copyDirectory, listFiles, removeDirectory } from "$scripts/shared";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { homePage, homePhotos, homeStyles, photoWidths } from "$pages/home.js";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { pageLayout, siteStyles } from "$pages/layout.js";
@@ -21,9 +21,24 @@ const AVIF_QUALITY = 50;
 const WEBP_QUALITY = 80;
 const PRINT_WIDTH = 100;
 const RELEASE_ID_LENGTH = 12;
+const DEFAULT_PREVIEW_PORT = 4173;
 
 const root = resolve(import.meta.dirname, "..");
-const output = join(root, "build");
+const previewSlot = process.env.DEV_PREVIEW_SLOT;
+const preview = previewSlot === "a" || previewSlot === "b";
+const outputName = preview
+  ? join(
+      ".cache/dev-preview",
+      String(Number(process.env.PORT ?? DEFAULT_PREVIEW_PORT)),
+      previewSlot,
+    )
+  : "build";
+const output = join(root, outputName);
+// Only development builds may use a sibling checkout. Published builds use the gitlink.
+const cardgameSource = resolve(
+  root,
+  preview ? (process.env.CARDGAME_SOURCE_DIR ?? "vendor/cardgame/src") : "vendor/cardgame/src",
+);
 const themeStyles = getThemeStyles();
 const routes = [
   {
@@ -109,7 +124,7 @@ const releaseId = async (): Promise<string> => {
   const files = [
     ...listFiles(join(root, "src")),
     ...listFiles(join(root, "static")),
-    ...listFiles(join(root, "vendor/cardgame/src")),
+    ...listFiles(cardgameSource),
     join(root, "bun.lock"),
     join(root, "scripts/lit-vendor.mts"),
     join(root, "scripts/lucide-vendor.mts"),
@@ -117,7 +132,10 @@ const releaseId = async (): Promise<string> => {
   ].toSorted();
   const contents = await Promise.all(files.map((file) => readFile(file)));
   for (const [index, file] of files.entries()) {
-    hash.update(relative(root, file).replaceAll("\\", "/"));
+    const logicalPath = file.startsWith(cardgameSource + sep)
+      ? join("vendor/cardgame/src", relative(cardgameSource, file))
+      : relative(root, file);
+    hash.update(logicalPath.replaceAll("\\", "/"));
     hash.update(contents[index]);
   }
   hash.update(process.env.BASE_PATH ?? "/~bergenwb");
@@ -127,7 +145,7 @@ const releaseId = async (): Promise<string> => {
 const buildAssets = async (assets: string): Promise<void> => {
   const sourceRoots = [
     { destination: assets, directory: join(root, "src") },
-    { destination: join(assets, "vendor/cardgame"), directory: join(root, "vendor/cardgame/src") },
+    { destination: join(assets, "vendor/cardgame"), directory: cardgameSource },
   ];
   await Promise.all(
     sourceRoots.map(async ({ directory, destination: moduleOutput }) => {
@@ -211,7 +229,7 @@ const build = async (): Promise<void> => {
   const release = await releaseId();
   process.env.ASSET_PATH = `${process.env.BASE_PATH}/_app/${release}`;
   const assets = join(output, "_app", release);
-  removeDirectory(root, "build");
+  removeDirectory(root, outputName);
   await mkdir(assets, { recursive: true });
   copyDirectory(join(root, "static"), output);
 
@@ -299,7 +317,7 @@ const build = async (): Promise<void> => {
     `${JSON.stringify({ framework: "lit", release }, null, 2)}\n`,
   );
   console.log(
-    `Rendered ${routes.length} pages to build with readable ES modules in _app/${release}/.`,
+    `Rendered ${routes.length} pages to ${outputName} with readable ES modules in _app/${release}/.`,
   );
 };
 

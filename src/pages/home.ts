@@ -73,7 +73,7 @@ export const homePage = () => html`
   </section>
   <section class="card-game-section" aria-labelledby="card-game-title">
     <h2 id="card-game-title">Take a card break</h2>
-    <p>A single-player card table. Draw, arrange, and play a hand at your own pace.</p>
+    <p>Play Shithead against the computer, or draw and arrange cards in free play.</p>
     <div id="card-game-mount"></div>
     <noscript>Enable JavaScript to play the card game locally in your browser.</noscript>
   </section>
