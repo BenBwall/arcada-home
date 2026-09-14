@@ -27,12 +27,13 @@ bun run test           # Build and run browser tests in Microsoft Edge
 
 ## Source and output
 
-- `src/pages/`: build-time Lit templates for Home, Resume, and Projects. They produce normal HTML with no client router or page hydration.
-- `src/lib/components/`: interactive `AppearancePanel`, `ThemeEditor`, and `ColorPicker` Lit elements, plus shared templates. Interactive styles are isolated by Shadow DOM; static page styles use readable class selectors.
-- `src/lib/theme/`: shared color handling, palette definitions, and the existing saved-theme format.
-- `src/styles/`: standalone CSS files used by pages and inside component shadow roots.
+- `src/pages/`: build-time Lit templates with their CSS in the same file. `layout.ts` owns the document shell and global styles. Pages produce normal HTML with no client router or page hydration.
+- `src/lib/components/`: each interactive Lit element contains its logic, HTML template, and `static styles = css` block. Shadow DOM scopes those styles. Shared controls use `controlStyles` from `shared-ui.ts`; static header and project-row templates also keep their CSS in the same file.
+- `src/lib/theme/`: shared color handling and the existing saved-theme format. `built-in-themes.ts` keeps the palette definitions and their CSS together.
 - `scripts/static-build.mts`: static renderer and output writer.
 - `scripts/lit-vendor.mts`: the entry point for the separate Lit library bundle.
+
+Write ordinary CSS inside Lit’s `css` tagged templates; no additional CSS-in-JS library is needed. The build extracts static page and global styles into readable CSS files. Interactive component styles stay with their JavaScript and are included in server-rendered shadow roots so they work before JavaScript loads.
 
 Each build creates:
 

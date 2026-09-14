@@ -1,19 +1,20 @@
 import "$components/appearance-panel.js";
 import { copyDirectory, listFiles, removeDirectory } from "$scripts/shared";
 import { dirname, join, relative, resolve } from "node:path";
+import { homePage, homeStyles } from "$pages/home.js";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { pageLayout, siteStyles } from "$pages/layout.js";
+import { projectsPage, projectsStyles } from "$pages/projects.js";
+import { resumePage, resumeStyles } from "$pages/resume.js";
 import { asset } from "$site/paths.js";
 import { collectResult } from "@lit-labs/ssr/lib/render-result.js";
 import { createHash } from "node:crypto";
 import { format } from "oxfmt";
-import { homePage } from "$pages/home.js";
-import { html } from "@lit-labs/ssr/lib/server-template.js";
-import { projectsPage } from "$pages/projects.js";
+import { projectRowStyles } from "$components/project-row.js";
 import { render } from "@lit-labs/ssr";
-import { resumePage } from "$pages/resume.js";
-import { siteHeader } from "$components/site-header.js";
+import { siteHeaderStyles } from "$components/site-header.js";
+import { themeStyles } from "$theme/built-in-themes.js";
 import ts from "typescript";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
 
 const PRINT_WIDTH = 100;
 const RELEASE_ID_LENGTH = 12;
@@ -114,13 +115,20 @@ const buildAssets = async (assets: string): Promise<void> => {
       await write(destination, await readable(destination, result.outputText));
     }),
   );
+  const styles = {
+    home: homeStyles,
+    "project-row": projectRowStyles,
+    projects: projectsStyles,
+    resume: resumeStyles,
+    site: siteStyles,
+    "site-header": siteHeaderStyles,
+    themes: themeStyles,
+  };
   await Promise.all(
-    sources
-      .filter((file) => file.endsWith(".css"))
-      .map(async (filename) => {
-        const destination = join(assets, "styles", filename.split(/[\\/]/).at(-1) ?? "styles.css");
-        await write(destination, await readable(destination, await readFile(filename, "utf8")));
-      }),
+    Object.entries(styles).map(async ([name, style]) => {
+      const destination = join(assets, "styles", `${name}.css`);
+      await write(destination, await readable(destination, style.cssText));
+    }),
   );
 
   const vendor = await Bun.build({
@@ -168,33 +176,7 @@ const build = async (): Promise<void> => {
 
   await Promise.all(
     routes.map(async (route) => {
-      const page = html`<!doctype html>
-        <html lang="en-US" data-base=${process.env.BASE_PATH} data-assets=${process.env.ASSET_PATH}>
-          <head>
-            <meta charset="utf-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1" />
-            <meta name="generator" content="Lit static build" />
-            <link rel="icon" href="data:," />
-            <title>${route.title}</title>
-            ${[
-              "themes",
-              "site",
-              "site-header",
-              route.name,
-              ...(route.name === "projects" ? ["project-row"] : []),
-            ].map(
-              (name) => html` <link rel="stylesheet" href=${asset(`_app/styles/${name}.css`)} />`,
-            )}
-            <script type="importmap">
-              ${unsafeHTML(importMap)}
-            </script>
-            <script type="module" src=${asset("_app/client.js")}></script>
-          </head>
-          <body>
-            ${siteHeader(route.path)}
-            <main>${route.render()}</main>
-          </body>
-        </html> `;
+      const page = pageLayout(route, importMap);
       // Preserve template whitespace and hydration boundaries. Remove only Lit SSR's
       // obsolete shadowroot attribute; modern browsers use shadowrootmode.
       await write(

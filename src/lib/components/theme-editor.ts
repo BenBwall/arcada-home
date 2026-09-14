@@ -7,8 +7,8 @@ import {
   isCssColor,
   isTheme,
 } from "$theme/theme-schema.js";
-import { LitElement, html, nothing } from "lit";
-import { announce, inputValue, selectOptions, stylesheets } from "$components/shared-ui.js";
+import { LitElement, css, html, nothing } from "lit";
+import { announce, controlStyles, inputValue, selectOptions } from "$components/shared-ui.js";
 import { colorSchemes, getColorScheme } from "$theme/built-in-themes.js";
 import { applyCustomTheme } from "$theme/theme.js";
 import { ifDefined } from "lit/directives/if-defined.js";
@@ -16,6 +16,90 @@ import { live } from "lit/directives/live.js";
 import { readCurrentColors } from "$theme/color-utils.js";
 
 export class ThemeEditor extends LitElement {
+  static styles = [
+    controlStyles,
+    css`
+      :host {
+        display: block;
+        color: var(--color-text);
+        font-family: inherit;
+      }
+      form {
+        display: grid;
+        gap: 0.65rem;
+      }
+      label {
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+      input {
+        font: inherit;
+        color: inherit;
+        border: 1px solid var(--color-border);
+        background-color: var(--color-surface);
+        border-radius: 0.4rem;
+      }
+      input {
+        box-sizing: border-box;
+        min-width: 0;
+        width: 100%;
+        padding: 0.65rem;
+      }
+
+      input:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+      }
+      form > p {
+        color: var(--color-muted);
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin: 0 0 0.5rem;
+      }
+      .base-selectors {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0.75rem;
+      }
+      @media (max-width: 24rem) {
+        .base-selectors {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      .colors {
+        display: grid;
+        gap: 0.65rem;
+        margin-block: 0.5rem;
+      }
+      .colors > div {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.5rem;
+        align-items: center;
+      }
+      .colors p {
+        margin: 0;
+        font-size: 0.8125rem;
+      }
+      .colors > div > input {
+        font-family: ui-monospace, monospace;
+        font-size: 0.875rem;
+      }
+      .form-actions {
+        display: grid;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--color-border);
+      }
+      .form-actions > div {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.625rem;
+      }
+    `,
+  ];
+
   static properties = {
     draft: { state: true },
     entered: { state: true },
@@ -102,7 +186,6 @@ export class ThemeEditor extends LitElement {
 
   render() {
     return html`
-      ${stylesheets("controls", "theme-editor")}
       <form @submit=${this.save}>
         <p>Preview changes across the page. Save to keep them.</p>
         <label

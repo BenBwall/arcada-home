@@ -1,3 +1,4 @@
+import { css } from "lit";
 import { html } from "@lit-labs/ssr/lib/server-template.js";
 
 export const resumePage = () => html`
@@ -174,4 +175,149 @@ export const resumePage = () => html`
       </dl>
     </section>
   </div>
+`;
+
+export const resumeStyles = css`
+  .resume {
+    max-width: 68rem;
+    margin-inline: auto;
+    padding-block: clamp(1rem, 4vw, 3rem);
+  }
+  .resume header {
+    padding-bottom: 2.5rem;
+  }
+  .resume header h1 {
+    margin: 0.5rem 0 1rem;
+  }
+  .resume header ul,
+  .resume article div p {
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+  .resume span,
+  .resume article div p,
+  .resume-description,
+  .resume article ul {
+    color: var(--color-muted);
+  }
+  .resume-description,
+  .resume article ul,
+  .resume dl {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+  .resume header ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    padding: 0;
+    margin: 1.25rem 0 0;
+    list-style: none;
+  }
+  .resume a {
+    text-underline-offset: 0.25em;
+    overflow-wrap: anywhere;
+  }
+  .resume a:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+  .resume section {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 2rem;
+    padding-block: 2rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .resume h2 {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.65;
+  }
+  .resume section > div:not(.prose) {
+    display: grid;
+    gap: 2rem;
+    min-width: 0;
+  }
+  .resume article > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+  }
+  .resume h3 {
+    margin: 0;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .resume article p {
+    margin: 0.5rem 0 0;
+  }
+  .resume article > div p {
+    margin: 0;
+  }
+  .resume-role {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+  .resume article ul {
+    padding-left: 1.25rem;
+    margin: 0.75rem 0 0;
+  }
+  .resume article ul li + li {
+    margin-top: 0.5rem;
+  }
+  .resume dl {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+  }
+  .resume dt {
+    font-weight: 500;
+  }
+  .resume dd {
+    margin: 0.25rem 0 0;
+    color: var(--color-muted);
+  }
+  @media (max-width: 52rem) {
+    .resume section {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+  }
+  @media print {
+    :root:has(.resume),
+    :root[data-theme]:has(.resume) {
+      color-scheme: light;
+      --color-text: #000 !important;
+      --color-primary: #000 !important;
+      --color-accent: #000 !important;
+      --color-muted: #444 !important;
+      --color-background: #fff !important;
+      --color-surface: #fff !important;
+      --color-border: #ccc !important;
+    }
+    .resume {
+      max-width: none;
+      padding: 0;
+    }
+    .resume section {
+      grid-template-columns: 9rem minmax(0, 1fr);
+      gap: 1rem;
+      padding-block: 1rem;
+    }
+    .resume article {
+      break-inside: avoid;
+    }
+    .resume header {
+      padding-bottom: 1rem;
+    }
+    .resume header h1 {
+      font-size: 2rem;
+    }
+  }
 `;

@@ -14,7 +14,7 @@ import {
   getBuiltInTheme,
   getColorScheme,
 } from "$theme/built-in-themes.js";
-import { LitElement, html, nothing } from "lit";
+import { LitElement, css, html, nothing } from "lit";
 import {
   applyAppearance,
   getSystemTheme,
@@ -25,16 +25,145 @@ import {
 } from "$theme/theme.js";
 import {
   closeIcon,
+  controlStyles,
   getInput,
   inputValue,
   selectOptions,
-  stylesheets,
   sunMoonIcon,
 } from "$components/shared-ui.js";
 import { live } from "lit/directives/live.js";
 import { readCurrentColors } from "$theme/color-utils.js";
 
 export class AppearancePanel extends LitElement {
+  static styles = [
+    controlStyles,
+    css`
+      :host {
+        display: block;
+        color: var(--color-text);
+        font-family: inherit;
+      }
+      button[aria-haspopup="dialog"] {
+        flex: 0 0 auto;
+        width: 2.5rem;
+        height: 2.5rem;
+        margin-left: auto;
+        padding: 0.5rem;
+        color: var(--color-text);
+        background-color: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: 0.625rem;
+        cursor: pointer;
+      }
+      button[aria-haspopup="dialog"]:hover {
+        background-color: var(--color-hover);
+        border-color: var(--color-border-strong);
+      }
+      button:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+      }
+      dialog {
+        color-scheme: inherit;
+        box-sizing: border-box;
+        width: min(28rem, calc(100vw - 2rem));
+        max-height: calc(100dvh - 2rem);
+        padding: 1.25rem;
+        border: 1px solid var(--color-border);
+        border-radius: 0.875rem;
+        box-shadow: 0 1rem 3rem var(--color-shadow);
+        background-color: var(--color-surface);
+        color: var(--color-text);
+      }
+      dialog::backdrop {
+        background-color: var(--color-shadow);
+      }
+      .dialog-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
+      }
+      h2 {
+        margin: 0;
+        font-size: 1.125rem;
+      }
+      .dialog-heading button {
+        display: grid;
+        place-items: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        padding: 0;
+        color: var(--color-muted);
+        background-color: transparent;
+        border: 0;
+        border-radius: 0.5rem;
+        cursor: pointer;
+      }
+      .dialog-heading button:hover {
+        color: var(--color-text);
+        background-color: var(--color-hover);
+      }
+      button:active {
+        background-color: var(--color-active);
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+      p:not([role]),
+      p[role="status"] {
+        color: var(--color-muted);
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+      p[role="status"]:empty {
+        display: none;
+      }
+      p:not([role]) {
+        margin: 0.75rem 0 1.25rem;
+      }
+      .theme-selectors {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 0.75rem;
+      }
+      @media (max-width: 24rem) {
+        .theme-selectors {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+      .actions {
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: minmax(0, 1fr);
+        gap: 0.625rem;
+      }
+      .theme-files {
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--color-border);
+      }
+      h3 {
+        margin: 0;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+      .theme-files p {
+        margin-top: 0.375rem;
+      }
+      @media print {
+        dialog,
+        dialog::backdrop {
+          display: none !important;
+        }
+      }
+    `,
+  ];
+
   static properties = {
     appearance: { state: true },
     draft: { state: true },
@@ -346,12 +475,7 @@ export class AppearancePanel extends LitElement {
         <h3>Theme files</h3>
         <p>Import a theme file or export your saved themes.</p>
         <div class="actions">
-          <button
-            type="button"
-            data-variant="secondary"
-            ?disabled=${this.importing}
-            @click=${() => this.fileInput?.click()}
-          >
+          <button type="button" data-variant="secondary" ?disabled=${this.importing} @click="">
             ${this.importing ? "Importing…" : "Import themes"}
           </button>
           <button
@@ -369,7 +493,6 @@ export class AppearancePanel extends LitElement {
 
   render() {
     return html`
-      ${stylesheets("controls", "appearance-panel")}
       <button
         id="dark-mode-toggle"
         type="button"
