@@ -3,6 +3,10 @@ import pathConfig from "./tsconfig.paths.json" with { type: "json" };
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
+  compilerOptions: {
+    // Keep source whitespace in the generated HTML and matching client code.
+    preserveWhitespace: true,
+  },
   kit: {
     adapter: adapter(),
     // SvelteKit generates matching Vite and TypeScript aliases from the shared paths.
