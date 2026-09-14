@@ -1,4 +1,4 @@
-import { css } from "lit";
+import { css } from "@lit/reactive-element/css-tag.js";
 
 export const DEFAULT_SCHEME = "dusk";
 
@@ -36,7 +36,9 @@ export const getBuiltInTheme = (value: unknown) =>
     (theme) => theme.id === value || ("legacyId" in theme && theme.legacyId === value),
   );
 
-export const themeStyles = css`
+// Create CSS only during the static build; the early theme script needs just the palette data.
+// eslint-disable-next-line max-lines-per-function -- Keep the palette CSS in one readable template.
+export const getThemeStyles = () => css`
   /* Forest ink on bone, with a chartreuse navigation accent. */
   :root[data-theme="turtle-light"] {
     color-scheme: light;

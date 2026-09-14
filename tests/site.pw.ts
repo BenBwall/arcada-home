@@ -173,3 +173,49 @@ test("application output has readable modules, styles and static page content", 
   expect(home).not.toContain("<!--[-->");
   expect(home).not.toContain("svelte-");
 });
+
+test("saved colors apply on every page even when all application modules are blocked", async ({
+  browser,
+}) => {
+  const cases = [
+    { saved: { mode: "dark", scheme: "classic", themes: [], version: 2 }, theme: "dark" },
+    { saved: { mode: "light", scheme: "classic", themes: [], version: 2 }, theme: "light" },
+    { saved: { mode: "system", scheme: "classic", themes: [], version: 2 }, theme: "dark" },
+    { saved: { active: "dark", themes: [], version: 1 }, theme: "dark" },
+    {
+      saved: {
+        mode: "dark",
+        scheme: "custom-test",
+        themes: [
+          {
+            base: "dark",
+            baseScheme: "lagoon",
+            colors: { background: "#123456" },
+            id: "custom-test",
+            name: "Custom",
+          },
+        ],
+        version: 2,
+      },
+      theme: "lagoon-dark",
+    },
+  ];
+  for (const scenario of cases) {
+    const context = await browser.newContext({ colorScheme: "dark" });
+    await context.addInitScript((saved) => {
+      localStorage.setItem("appearance-v1", JSON.stringify(saved));
+    }, scenario.saved);
+    await context.route("**/_app/**/*.js", (route) => route.abort());
+    const page = await context.newPage();
+    for (const route of routes) {
+      await page.goto(`http://127.0.0.1:4173/~bergenwb/${route.path}`);
+      await expect(page.locator("html")).toHaveAttribute("data-theme", scenario.theme);
+      if (scenario.theme === "dark") {
+        await expect(page.locator("body")).toHaveCSS("background-color", "oklch(0.2 0 0)");
+      } else if (scenario.theme === "lagoon-dark") {
+        await expect(page.locator("body")).toHaveCSS("background-color", "rgb(18, 52, 86)");
+      }
+    }
+    await context.close();
+  }
+});

@@ -53,7 +53,7 @@ build/
     vendor/lit.js
 ```
 
-Application TypeScript is emitted as modern ES modules: types are removed, but class names, method names, imports, comments, and template literals remain readable. An import map resolves the shared aliases in browsers. Application modules are not bundled or minified. Lit and its hydration support are bundled separately; third-party internal names may still be short because that is how the packages are distributed.
+Application TypeScript is emitted as modern ES modules: types are removed, but class names, method names, imports, comments, and template literals remain readable. An import map resolves the shared aliases in browsers. Interactive application modules are not bundled or minified. The build also creates a readable, synchronous head script from `src/theme-start.ts` and the shared preference logic. It applies saved colors before the page can paint, including custom themes and older saved settings. This bootstrap needs no external requests and does not initialize Lit. Lit and its hydration support are bundled separately; third-party internal names may still be short because that is how the packages are distributed.
 
 The build generates responsive AVIF versions with WebP fallbacks of the original photos with Sharp. The first photo gets high fetch priority, and module preload links avoid waiting for each level of JavaScript imports. Each page includes its own search description.
 

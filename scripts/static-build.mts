@@ -10,11 +10,11 @@ import { asset } from "$site/paths.js";
 import { collectResult } from "@lit-labs/ssr/lib/render-result.js";
 import { createHash } from "node:crypto";
 import { format } from "oxfmt";
+import { getThemeStyles } from "$theme/built-in-themes.js";
 import { projectRowStyles } from "$components/project-row.js";
 import { render } from "@lit-labs/ssr";
 import sharp from "sharp";
 import { siteHeaderStyles } from "$components/site-header.js";
-import { themeStyles } from "$theme/built-in-themes.js";
 import ts from "typescript";
 
 const AVIF_QUALITY = 50;
@@ -24,6 +24,7 @@ const RELEASE_ID_LENGTH = 12;
 
 const root = resolve(import.meta.dirname, "..");
 const output = join(root, "build");
+const themeStyles = getThemeStyles();
 const routes = [
   {
     description:
@@ -63,9 +64,14 @@ const publicModule = (filename: string): boolean =>
   filename.endsWith(".ts") &&
   !filename.endsWith(".test.ts") &&
   !filename.includes(join("src", "pages")) &&
-  !["project-row.ts", "site-header.ts", "projects.ts", "hooks.ts", "hooks.client.ts"].some((name) =>
-    filename.endsWith(name),
-  );
+  ![
+    "project-row.ts",
+    "site-header.ts",
+    "projects.ts",
+    "hooks.ts",
+    "hooks.client.ts",
+    "theme-start.ts",
+  ].some((name) => filename.endsWith(name));
 
 const readable = async (filename: string, source: string): Promise<string> => {
   const result = await format(filename, source, {
@@ -171,6 +177,21 @@ const buildAssets = async (assets: string): Promise<void> => {
   );
 };
 
+const buildThemeBootstrap = async (): Promise<string> => {
+  const result = await Bun.build({
+    conditions: ["production"],
+    define: { "process.env.NODE_ENV": JSON.stringify("production") },
+    entrypoints: [join(root, "src/theme-start.ts")],
+    format: "iife",
+    minify: false,
+    target: "browser",
+  });
+  if (!result.success) {
+    throw new Error(result.logs.map((log) => log.message).join("\n"));
+  }
+  return readable("theme-start.js", await result.outputs[0].text());
+};
+
 const build = async (): Promise<void> => {
   process.env.BASE_PATH = (process.env.BASE_PATH ?? "/~bergenwb").replace(/\/$/, "");
   const release = await releaseId();
@@ -181,6 +202,7 @@ const build = async (): Promise<void> => {
   copyDirectory(join(root, "static"), output);
 
   await buildAssets(assets);
+  const themeBootstrap = await buildThemeBootstrap();
   await mkdir(join(assets, "images"), { recursive: true });
   await Promise.all(
     homePhotos.flatMap((name) =>
@@ -220,6 +242,7 @@ const build = async (): Promise<void> => {
         "$components/": asset("_app/lib/components/"),
         "$site/": asset("_app/lib/"),
         "$theme/": asset("_app/lib/theme/"),
+        "@lit/reactive-element/css-tag.js": asset("_app/vendor/lit.js"),
         lit: asset("_app/vendor/lit.js"),
         "lit/directives/if-defined.js": asset("_app/vendor/lit.js"),
         "lit/directives/live.js": asset("_app/vendor/lit.js"),
@@ -236,6 +259,7 @@ const build = async (): Promise<void> => {
         importMap,
         [themeStyles, siteStyles, siteHeaderStyles, ...route.styles],
         modules,
+        themeBootstrap,
       );
       // Preserve template whitespace and hydration boundaries. Remove only Lit SSR's
       // obsolete shadowroot attribute; modern browsers use shadowrootmode.

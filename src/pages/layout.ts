@@ -9,6 +9,7 @@ export const pageLayout = (
   importMap: string,
   styles: CSSResult[],
   modules: string[],
+  themeBootstrap: string,
 ) => html`<!doctype html>
   <html lang="en-US" data-base=${process.env.BASE_PATH} data-assets=${process.env.ASSET_PATH}>
     <head>
@@ -18,6 +19,7 @@ export const pageLayout = (
       <meta name="description" content=${route.description} />
       <link rel="icon" href="data:," />
       <title>${route.title}</title>
+      ${unsafeHTML(`<script>${themeBootstrap.replace(/<\/script/gi, "<\\/script")}</script>`)}
       ${unsafeHTML(`<style>${styles.map((style) => style.cssText).join("\n")}</style>`)}
       <script type="importmap">
         ${unsafeHTML(importMap)}
