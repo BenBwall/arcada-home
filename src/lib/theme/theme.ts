@@ -1,5 +1,3 @@
-import { type BuiltInThemeId, DEFAULT_SCHEME, getColorScheme } from "$theme/built-in-themes";
-
 import {
   type Appearance,
   type Colors,
@@ -12,7 +10,8 @@ import {
   isTheme,
   parseAppearance,
   parseThemeFile,
-} from "$theme/theme-schema";
+} from "$theme/theme-schema.js";
+import { type BuiltInThemeId, DEFAULT_SCHEME, getColorScheme } from "$theme/built-in-themes.js";
 
 export const readAppearance = (): Appearance => {
   const fallback: Appearance = { mode: "system", scheme: DEFAULT_SCHEME, themes: [], version: 2 };

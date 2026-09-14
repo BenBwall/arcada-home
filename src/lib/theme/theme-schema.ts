@@ -4,7 +4,7 @@ import {
   colorSchemes,
   getBuiltInTheme,
   getColorScheme,
-} from "$theme/built-in-themes";
+} from "$theme/built-in-themes.js";
 
 export type Theme = "light" | "dark";
 export type AppearanceMode = Theme | "system";

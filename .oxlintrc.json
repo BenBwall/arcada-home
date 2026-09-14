@@ -16,14 +16,13 @@
   ],
   "overrides": [
     {
-      "files": ["src/**/*.ts", "src/**/*.svelte"],
+      "files": ["src/**/*.ts"],
       "env": {
-        "browser": true,
-        "svelte": true
+        "browser": true
       }
     },
     {
-      "files": ["scripts/**/*.ts", "svelte.config.js", "vite.config.ts"],
+      "files": ["scripts/**/*.ts", "scripts/**/*.mts", "playwright.config.ts", "tests/**/*.ts"],
       "env": {
         "node": true
       },
@@ -32,9 +31,28 @@
       }
     },
     {
-      "files": ["svelte.config.js", "vite.config.ts"],
+      "files": [
+        "src/client.ts",
+        "src/lib/components/*.ts",
+        "scripts/static-build.mts",
+        "scripts/lit-vendor.mts"
+      ],
       "rules": {
-        "eslint/no-restricted-imports": "off"
+        "import/no-unassigned-import": "off",
+        "typescript/unbound-method": "off"
+      }
+    },
+    {
+      "files": ["tests/**/*.ts"],
+      "rules": {
+        "eslint/no-await-in-loop": "off",
+        "eslint/no-magic-numbers": "off"
+      }
+    },
+    {
+      "files": ["src/pages/*.ts", "src/lib/components/*.ts"],
+      "rules": {
+        "eslint/max-lines-per-function": "off"
       }
     }
   ],

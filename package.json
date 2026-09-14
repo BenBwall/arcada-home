@@ -4,18 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun --bun vite dev",
-    "build": "bun --bun vite build",
-    "preview": "bun --bun vite preview",
-    "prepare": "bun --bun svelte-kit sync",
-    "check": "bun run lint && bun --bun svelte-check --tsconfig ./tsconfig.json && bun run check:scripts",
+    "dev": "bun scripts/serve.mts --watch",
+    "build": "bun scripts/static-build.mts",
+    "preview": "bun scripts/serve.mts",
+    "check": "bun run lint && bun run check:types && bun run check:scripts",
     "check:scripts": "bun --bun tsc --project scripts/tsconfig.json --noEmit",
-    "check:watch": "bun --bun svelte-kit sync && bun --bun svelte-check --tsconfig ./tsconfig.json --watch",
+    "check:watch": "bun --bun tsc --noEmit --watch",
     "test": "bun run build && bun --bun playwright test",
     "deploy:setup": "bun scripts/run.ts setup-deploy",
     "deploy": "bun scripts/run.ts retry-deploy",
     "lint": "bun run lint:js && bun run lint:w3c",
-    "lint:js": "bun --bun svelte-kit sync && bun --bun oxlint --deny-warnings --report-unused-disable-directives .",
+    "lint:js": "bun --bun oxlint --deny-warnings --report-unused-disable-directives .",
     "lint:w3c": "bun run build && bun scripts/validate-w3c.ts",
     "lint:html": "bun run build && bun scripts/validate-w3c.ts html",
     "lint:css": "bun run build && bun scripts/validate-w3c.ts css",
@@ -23,26 +22,23 @@
     "test:validators": "bun test scripts/w3c.test.ts",
     "format": "bun --bun oxfmt --write .",
     "format:check": "bun --bun oxfmt --check .",
-    "test:themes": "bun test --tsconfig-override ./tsconfig.paths.json src/lib/theme/theme-schema.test.ts"
+    "test:themes": "bun test --tsconfig-override ./tsconfig.paths.json src/lib/theme/theme-schema.test.ts",
+    "check:types": "bun --bun tsc --noEmit"
   },
   "dependencies": {
-    "@lucide/svelte": "^1.45.0"
+    "@lit-labs/ssr-client": "^1.1.8",
+    "lit": "^3.3.3"
   },
   "devDependencies": {
+    "@lit-labs/ssr": "^4.1.0",
     "@playwright/test": "^1.63.0",
-    "@sveltejs/adapter-static": "^3.0.10",
-    "@sveltejs/kit": "^2.70.3",
-    "@sveltejs/vite-plugin-svelte": "^7.3.0",
     "@types/bun": "^1.4.2",
     "@types/node": "^24.13.4",
     "oxfmt": "^0.67.0",
     "oxlint": "^1.82.0",
     "oxlint-tsgolint": "^7.0.2001",
-    "svelte": "^5.57.0",
-    "svelte-check": "^4.7.6",
     "ts-node": "^10.9.2",
-    "typescript": "^6.0.3",
-    "vite": "^8.3.0"
+    "typescript": "^6.0.3"
   },
   "engines": {
     "bun": ">=1.4.2"

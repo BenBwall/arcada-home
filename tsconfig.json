@@ -1,14 +1,18 @@
 {
-  "extends": ["./tsconfig.paths.json", "./.svelte-kit/tsconfig.json"],
+  "extends": "./tsconfig.paths.json",
   "compilerOptions": {
-    "allowJs": true,
-    "checkJs": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "skipLibCheck": true,
-    "sourceMap": true,
+    "target": "ESNext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": ["bun", "node"],
     "strict": true,
-    "moduleResolution": "bundler"
-  }
+    "noEmit": true,
+    "useDefineForClassFields": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true
+  },
+  "include": ["src/**/*.ts", "scripts/**/*.mts", "playwright.config.ts", "tests/**/*.ts"]
 }

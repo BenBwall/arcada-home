@@ -5,9 +5,8 @@ import {
   parseAppearance,
   parseCustomTheme,
   parseThemeFile,
-} from "$theme/theme-schema";
-
-import { builtInThemes, colorSchemes } from "$theme/built-in-themes";
+} from "$theme/theme-schema.js";
+import { builtInThemes, colorSchemes } from "$theme/built-in-themes.js";
 import { describe, expect, test } from "bun:test";
 
 describe("appearance settings", () => {

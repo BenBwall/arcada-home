@@ -7,7 +7,7 @@
   --color-muted: oklch(45% 0.04 140);
   --color-primary: oklch(40% 0.09 150);
   --color-secondary: oklch(43% 0.07 75);
-  --color-accent: oklch(43% 0.10 40);
+  --color-accent: oklch(43% 0.1 40);
   --color-border: oklch(83% 0.04 105);
   --color-border-strong: oklch(57% 0.05 140);
   --color-hover: oklch(91% 0.035 105);
@@ -25,7 +25,7 @@
   --color-muted: oklch(79% 0.045 110);
   --color-primary: oklch(83% 0.13 115);
   --color-secondary: oklch(81% 0.07 85);
-  --color-accent: oklch(80% 0.10 55);
+  --color-accent: oklch(80% 0.1 55);
   --color-border: oklch(39% 0.04 145);
   --color-border-strong: oklch(61% 0.06 130);
   --color-hover: oklch(33% 0.04 150);
@@ -97,9 +97,9 @@
   --color-surface: oklch(29% 0.055 235);
   --color-text: oklch(95% 0.02 95);
   --color-muted: oklch(80% 0.035 200);
-  --color-primary: oklch(82% 0.10 190);
+  --color-primary: oklch(82% 0.1 190);
   --color-secondary: oklch(83% 0.08 145);
-  --color-accent: oklch(82% 0.10 60);
+  --color-accent: oklch(82% 0.1 60);
   --color-border: oklch(40% 0.055 230);
   --color-border-strong: oklch(63% 0.07 215);
   --color-hover: oklch(34% 0.05 235);
@@ -117,9 +117,9 @@
   --color-surface: oklch(98% 0.015 65);
   --color-text: oklch(30% 0.055 320);
   --color-muted: oklch(45% 0.04 320);
-  --color-primary: oklch(43% 0.10 320);
+  --color-primary: oklch(43% 0.1 320);
   --color-secondary: oklch(43% 0.08 30);
-  --color-accent: oklch(43% 0.10 45);
+  --color-accent: oklch(43% 0.1 45);
   --color-border: oklch(83% 0.035 55);
   --color-border-strong: oklch(57% 0.055 320);
   --color-hover: oklch(92% 0.03 65);

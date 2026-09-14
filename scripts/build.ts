@@ -26,11 +26,9 @@ const exportRevision = (settings: DeploymentSettings, revision: string, work: st
   ]);
   runCommand(settings.tar, ["-xf", archive, "-C", source]);
   listFiles(source); // Reject links and junctions before running any project code.
-  for (const required of ["package.json", "bun.lock", "svelte.config.js"] as const) {
+  for (const required of ["package.json", "bun.lock"] as const) {
     if (!fs.existsSync(resolveChildPath(source, required))) {
-      throw new Error(
-        `Pushed main is missing ${required}. Commit the Bun/Svelte app before pushing.`,
-      );
+      throw new Error(`Pushed main is missing ${required}. Commit the Bun app before pushing.`);
     }
   }
   return source;
@@ -52,7 +50,7 @@ const buildSite = (settings: DeploymentSettings, revision: string, source: strin
     !fs.existsSync(resolveChildPath(build, "index.html")) ||
     !fs.existsSync(resolveChildPath(build, "_app"))
   ) {
-    throw new Error("Build did not produce index.html and Svelte assets.");
+    throw new Error("Build did not produce index.html and static assets.");
   }
   return build;
 };
