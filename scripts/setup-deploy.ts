@@ -20,10 +20,28 @@ const CACHE_HASH_LENGTH = 12;
 const EXECUTABLE_PERMISSIONS = 0o755;
 const repository = path.resolve(__dirname, "..");
 
+/** Git resolves mapped drives to UNC paths before checking repository ownership. */
+export const trustReceiver = (git: string, receiver: string): void => {
+  assertNoSymlinks(receiver);
+  const actual = fs.realpathSync.native(receiver).replaceAll("\\", "/");
+  const trusted = actual.startsWith("//") ? `%(prefix)/${actual}` : actual;
+  let existing: string[] = [];
+  try {
+    existing = runCommand(git, ["config", "--global", "--get-all", "safe.directory"], {
+      capture: true,
+    }).split(/\r?\n/);
+  } catch {
+    // A Git config query exits with 1 when no values have been configured yet.
+  }
+  if (!existing.includes(trusted)) {
+    runCommand(git, ["config", "--global", "--add", "safe.directory", trusted]);
+  }
+};
+
 const findExecutable = (name: string): string =>
   runCommand("where.exe", [name], { capture: true }).split(/\r?\n/)[0];
 
-const quoteHookPath = (value: string): string => {
+export const quoteHookPath = (value: string): string => {
   if (/['\r\n]/.test(value)) {
     throw new Error("Hook paths must not contain apostrophes or newlines.");
   }
@@ -87,7 +105,7 @@ const prepareReceiver = (settings: DeploymentSettings, config: string): void => 
   writeJson(config, settings);
 };
 
-const installTooling = ({ bun, cache }: DeploymentSettings): string => {
+export const installTooling = ({ bun, cache }: DeploymentSettings): string => {
   const tooling = resolveChildPath(cache, `tooling-${randomUUID()}`);
   fs.mkdirSync(tooling, { recursive: true });
 
@@ -172,6 +190,7 @@ export const main = (): void => {
   const pushUrls = updateRemotes ? readOtherPushUrls(settings) : [];
 
   prepareReceiver(settings, config);
+  trustReceiver(settings.git, settings.receiver);
   withLock(settings.cache, "setup.running", () => {
     const runner = installTooling(settings);
     installHooks(settings, config, runner);

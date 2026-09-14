@@ -4,7 +4,13 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 type DeploymentCommand = { main: () => void };
-const commands = ["setup-deploy", "retry-deploy", "deploy"];
+const commands = [
+  "setup-deploy",
+  "retry-deploy",
+  "deploy",
+  "setup-cardgame-deploy",
+  "cardgame-deploy",
+];
 
 const registerTypeScriptCompiler = (): void => {
   // Compile and type-check copied deployment scripts before Bun loads them.
@@ -32,7 +38,7 @@ const isDeploymentCommand = (value: unknown): value is DeploymentCommand =>
 const execute = async (): Promise<void> => {
   const command = process.argv[2];
   if (!commands.includes(command)) {
-    throw new Error("Expected setup-deploy, retry-deploy, or deploy.");
+    throw new Error(`Expected one of: ${commands.join(", ")}.`);
   }
   // Leave only the command's own arguments for parseArgs().
   process.argv.splice(2, 1);

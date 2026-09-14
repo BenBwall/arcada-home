@@ -94,10 +94,32 @@ After changing deployment scripts, refresh the installed hooks once:
 bun run deploy:setup --no-remote-changes
 ```
 
-Git on Windows may require trusting the receiver's ownership. A push can apply that trust to the receiver for a single command:
+Setup adds an exact Git `safe.directory` entry for the receiver's resolved network path. A push can also apply that trust to the receiver for a single command:
 
 ```powershell
 git push --receive-pack='git -c safe.directory=H:/.arcada-home-deploy.git receive-pack' domus main
 ```
 
 The deployment cache, generated output, browser artifacts, and logs are not committed. The browser tests cover static content without JavaScript, responsive layouts, hydration, navigation, appearance synchronization, and theme editing/import/export.
+
+## Deploy after cardgame pushes
+
+On this computer, `git push origin main` from `GitRepo/cardgame-lit` or `vendor/cardgame` pushes to GitHub first and then to `H:\.cardgame-lit-deploy.git`. Its main-only receive hooks update the homepage's game pin in an isolated clone, push that commit to `arcada-home/main` on GitHub, and push to the existing Domus receiver for validation and publishing. Local working trees are not changed by the hooks. Other branches and tags do not deploy. H: and GitHub access must be available.
+
+Install or refresh this setup from the homepage checkout:
+
+```powershell
+bun run deploy:setup --no-remote-changes
+bun run deploy:cardgame:setup
+```
+
+The setup configures both existing game checkouts. Use `--checkout C:\path\to\cardgame-lit` for a different standalone checkout. This is local Git configuration; pushes made from other computers or directly to the GitHub URL do not trigger the Domus receiver.
+
+If a push publishes to GitHub but deployment fails, retry from `arcada-home` with `bun run deploy:cardgame`. The command uses current GitHub main, avoids duplicate pin commits, and repairs a previous failed publication even if the receiver already has the commit. A post-receive error cannot undo an accepted Git push, so check the terminal's deployment result. Failed builds retain diagnostics and do not replace the live site.
+
+After the automatic pin update, bring this checkout up to date before your next homepage edit or push:
+
+```powershell
+git pull --ff-only origin main
+git submodule update --init --recursive
+```

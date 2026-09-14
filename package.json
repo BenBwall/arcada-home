@@ -12,6 +12,8 @@
     "check:watch": "bun --bun tsc --noEmit --watch",
     "test": "bun run build && bun --bun playwright test",
     "deploy:setup": "bun scripts/run.ts setup-deploy",
+    "deploy:cardgame:setup": "bun scripts/run.ts setup-cardgame-deploy",
+    "deploy:cardgame": "bun scripts/run.ts cardgame-deploy --mode retry",
     "deploy": "bun scripts/run.ts retry-deploy",
     "lint": "bun run lint:js && bun run lint:w3c",
     "lint:js": "bun --bun oxlint --deny-warnings --report-unused-disable-directives .",
