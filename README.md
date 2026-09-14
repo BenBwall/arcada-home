@@ -32,6 +32,7 @@ bun run test           # Build and run browser tests in Microsoft Edge
 - `src/lib/theme/`: shared color handling and the existing saved-theme format. `built-in-themes.ts` keeps the palette definitions and their CSS together.
 - `scripts/static-build.mts`: static renderer and output writer.
 - `scripts/lit-vendor.mts`: the entry point for the separate Lit library bundle.
+- `scripts/lucide-vendor.mts`: imports only `SunMoon`, `X`, and the SVG builder from the official `@lucide/icons` dependency. Icon wrappers in `shared-ui.ts` use this package for both static rendering and hydration.
 
 Write ordinary CSS inside Lit’s `css` tagged templates; no additional CSS-in-JS library is needed. The build includes static page and global styles directly in each document to avoid render-blocking CSS requests, and also exports readable CSS files for inspection. Interactive component styles stay with their JavaScript and are included in server-rendered shadow roots so they work before JavaScript loads.
 
@@ -51,6 +52,7 @@ build/
     lib/theme/...
     styles/...
     vendor/lit.js
+    vendor/lucide.js
 ```
 
 Application TypeScript is emitted as modern ES modules: types are removed, but class names, method names, imports, comments, and template literals remain readable. An import map resolves the shared aliases in browsers. Interactive application modules are not bundled or minified. The build also creates a readable, synchronous head script from `src/theme-start.ts` and the shared preference logic. It applies saved colors before the page can paint, including custom themes and older saved settings. This bootstrap needs no external requests and does not initialize Lit. Lit and its hydration support are bundled separately; third-party internal names may still be short because that is how the packages are distributed.

@@ -7,6 +7,7 @@
       "dependencies": {
         "@lit-labs/ssr-client": "^1.1.8",
         "@lit/reactive-element": "^2.1.2",
+        "@lucide/icons": "^1.46.0",
         "lit": "^3.3.3",
       },
       "devDependencies": {
@@ -106,6 +107,8 @@
     "@lit-labs/ssr-dom-shim": ["@lit-labs/ssr-dom-shim@1.6.0", "", {}, "sha512-VHb0ALPMTlgKjM6yIxxoQNnpKyUKLD04VzeQdsiXkMqkvYlAHxq9glGLmgbb889/1GsohSOAjvQYoiBppXFqrQ=="],
 
     "@lit/reactive-element": ["@lit/reactive-element@2.1.2", "", { "dependencies": { "@lit-labs/ssr-dom-shim": "^1.5.0" } }, "sha512-pbCDiVMnne1lYUIaYNN5wrwQXDtHaYtg7YEFPeW+hws6U47WeFvISGUWekPGKWOP1ygrs0ef0o1VJMk1exos5A=="],
+
+    "@lucide/icons": ["@lucide/icons@1.46.0", "", {}, "sha512-pUkQ3NlUXHn0ToG/8BJxAUc9lNHn+jdtSK74YC5zoQbnJN7ZLQjlAzYZRXLzUvlTBMGnnpfmCwGfUBsUmD4isA=="],
 
     "@opentelemetry/api": ["@opentelemetry/api@1.9.1", "", {}, "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="],
 

@@ -1,6 +1,6 @@
 Third-party notices
 
-Lucide icons (SunMoon and X), including Feather-derived geometry:
+Lucide icons and SVG builder (@lucide/icons):
 
 ISC License
 

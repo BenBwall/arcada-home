@@ -111,6 +111,7 @@ const releaseId = async (): Promise<string> => {
     ...listFiles(join(root, "static")),
     join(root, "bun.lock"),
     join(root, "scripts/lit-vendor.mts"),
+    join(root, "scripts/lucide-vendor.mts"),
     join(root, "scripts/static-build.mts"),
   ].toSorted();
   const contents = await Promise.all(files.map((file) => readFile(file)));
@@ -160,20 +161,24 @@ const buildAssets = async (assets: string): Promise<void> => {
     }),
   );
 
-  const vendor = await Bun.build({
-    conditions: ["production"],
-    define: { "process.env.NODE_ENV": JSON.stringify("production") },
-    entrypoints: [join(root, "scripts/lit-vendor.mts")],
-    format: "esm",
-    minify: false,
-    target: "browser",
-  });
-  if (!vendor.success) {
-    throw new Error(vendor.logs.map((log) => log.message).join("\n"));
-  }
-  await write(
-    join(assets, "vendor/lit.js"),
-    await readable("lit.js", await vendor.outputs[0].text()),
+  await Promise.all(
+    ["lit", "lucide"].map(async (name) => {
+      const vendor = await Bun.build({
+        conditions: ["production"],
+        define: { "process.env.NODE_ENV": JSON.stringify("production") },
+        entrypoints: [join(root, `scripts/${name}-vendor.mts`)],
+        format: "esm",
+        minify: false,
+        target: "browser",
+      });
+      if (!vendor.success) {
+        throw new Error(vendor.logs.map((log) => log.message).join("\n"));
+      }
+      await write(
+        join(assets, `vendor/${name}.js`),
+        await readable(`${name}.js`, await vendor.outputs[0].text()),
+      );
+    }),
   );
 };
 
@@ -228,6 +233,7 @@ const build = async (): Promise<void> => {
   );
   const modules = [
     "_app/vendor/lit.js",
+    "_app/vendor/lucide.js",
     ...listFiles(join(root, "src"))
       .filter(publicModule)
       .map(
@@ -243,9 +249,12 @@ const build = async (): Promise<void> => {
         "$site/": asset("_app/lib/"),
         "$theme/": asset("_app/lib/theme/"),
         "@lit/reactive-element/css-tag.js": asset("_app/vendor/lit.js"),
+        "@lucide/icons": asset("_app/vendor/lucide.js"),
+        "@lucide/icons/build": asset("_app/vendor/lucide.js"),
         lit: asset("_app/vendor/lit.js"),
         "lit/directives/if-defined.js": asset("_app/vendor/lit.js"),
         "lit/directives/live.js": asset("_app/vendor/lit.js"),
+        "lit/directives/unsafe-html.js": asset("_app/vendor/lit.js"),
       },
     },
     null,
