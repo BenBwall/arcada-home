@@ -148,6 +148,7 @@ const buildAssets = async (assets: string): Promise<void> => {
     { destination: assets, directory: join(root, "src") },
     { destination: join(assets, "vendor/cardgame"), directory: cardgameSource },
   ];
+  copyDirectory(join(cardgameSource, "assets"), join(assets, "vendor/cardgame/assets"));
   await Promise.all(
     sourceRoots.map(async ({ directory, destination: moduleOutput }) => {
       const sources = listFiles(directory);
@@ -277,6 +278,7 @@ const build = async (): Promise<void> => {
         "$components/": asset("_app/lib/components/"),
         "$site/": asset("_app/lib/"),
         "$theme/": asset("_app/lib/theme/"),
+        "@cardgame/": asset("_app/vendor/cardgame/"),
         "@lit/reactive-element/css-tag.js": asset("_app/vendor/lit.js"),
         "@lucide/icons": asset("_app/vendor/lucide.js"),
         "@lucide/icons/build": asset("_app/vendor/lucide.js"),

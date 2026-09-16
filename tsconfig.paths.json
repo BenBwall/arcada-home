@@ -2,6 +2,7 @@
   "compilerOptions": {
     "paths": {
       "$cardgame": ["./vendor/cardgame/src/index.ts"],
+      "@cardgame/*": ["./vendor/cardgame/src/*"],
       "$components/*": ["./src/lib/components/*"],
       "$data/*": ["./src/lib/data/*"],
       "$theme/*": ["./src/lib/theme/*"],
