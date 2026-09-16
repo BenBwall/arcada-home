@@ -92,9 +92,9 @@ The existing origin push URLs publish the commit to GitHub and to the Domus Git 
 
 The receiver exports the exact submodule commits recorded in the pushed tree, fetching their public HTTPS repositories during the build. Commit and push game changes in `vendor/cardgame` before updating the parent gitlink. After first adding this submodule, refresh the installed deployment hooks with `bun run deploy:setup --no-remote-changes` before the next deployment.
 
-Persistent deployment settings live in `H:\.env.local`, beside the public `H:\html` directory. Every deployment (including cardgame pushes and retries) reads this file before building. Values in it override matching shell variables; comments, quoted values, and explicitly empty values are supported. Values are literal, without shell commands or variable expansion. The file is never copied into the website or committed to Git. The deployment's `BASE_PATH` remains `/~bergenwb`.
+Persistent deployment settings live in the tracked `.env.domus` file at the root of your local `arcada-home` checkout. Setup records its absolute path so every deployment (including cardgame pushes and retries) reads the same file, even when building an isolated checkout. Values in it override matching shell variables; comments, quoted values, and explicitly empty values are supported. Values are literal, without shell commands or variable expansion. The file is never copied into the website. The deployment's `BASE_PATH` remains `/~bergenwb`.
 
-The deployment scripts run on your Windows computer and access this file through the mapped drive. Domus only serves the resulting static files; it does not read environment variables at request time.
+The deployment scripts run on your Windows computer and read this local file before publishing to the mapped drive. Domus only serves the resulting static files; it does not read environment variables at request time. If you move the checkout, rerun both `bun run deploy:setup --no-remote-changes` and `bun run deploy:cardgame:setup` to refresh the paths and hooks.
 
 For the Railway backend, put its public HTTPS origin in that file:
 
@@ -104,7 +104,7 @@ MULTIPLAYER_PROD_URL=https://YOUR-SERVICE.up.railway.app
 
 Keep `MULTIPLAYER_URL` unset unless you want it to override the mode-specific URL; an empty `MULTIPLAYER_URL` disables online play. Editing this file takes effect on the next deployment without restarting your terminal. Local development continues to use the checkout's own environment files.
 
-To rebuild and republish the latest main already in the Domus receiver, including changes to `H:\.env.local`:
+To rebuild and republish the latest main already in the Domus receiver, including changes to `.env.domus`:
 
 ```powershell
 bun run deploy

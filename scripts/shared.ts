@@ -7,6 +7,7 @@ export type DeploymentSettings = {
   receiver: string;
   target: string;
   cache: string;
+  envFile: string;
   git: string;
   bun: string;
   tar: string;
@@ -180,6 +181,7 @@ export const loadSettings = (file: string): DeploymentSettings => {
   return {
     bun: readPath("bun"),
     cache: readPath("cache"),
+    envFile: readPath("envFile"),
     git: readPath("git"),
     receiver: readPath("receiver"),
     tar: readPath("tar"),

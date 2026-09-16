@@ -10,17 +10,16 @@ import {
   runCommand,
   withLock,
 } from "$scripts/shared";
-import { dirname, join } from "node:path";
 import { exportSubmodules } from "$scripts/submodules";
 import { parseEnv } from "node:util";
 import { randomUUID } from "node:crypto";
 
 export const deploymentEnvironment = (
-  settings: Pick<DeploymentSettings, "bun" | "target">,
+  settings: Pick<DeploymentSettings, "bun" | "envFile">,
   inherited: NodeJS.ProcessEnv = process.env,
 ): NodeJS.ProcessEnv => {
-  // Keep persistent values beside the public directory, never inside its output.
-  const filename = join(dirname(settings.target), ".env.local");
+  // Setup records the original checkout path, even when hooks run copied tooling.
+  const filename = settings.envFile;
   assertNoSymlinks(filename);
   let local: NodeJS.ProcessEnv = {};
   try {

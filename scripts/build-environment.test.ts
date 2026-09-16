@@ -5,11 +5,11 @@ import { deploymentEnvironment } from "$scripts/build";
 import { removeDirectory } from "$scripts/shared";
 import { tmpdir } from "node:os";
 
-test("deployment reads persistent values outside html and reloads them for each build", () => {
+test("deployment reads the configured local file and reloads it for each build", () => {
   const work = mkdtempSync(join(tmpdir(), "deployment-env-"));
   try {
-    const settings = { bun: process.execPath, target: join(work, "html") };
-    const filename = join(work, ".env.local");
+    const filename = join(work, ".env.domus");
+    const settings = { bun: process.execPath, envFile: filename };
     const inherited = { GIT_DIR: "old", MULTIPLAYER_PROD_URL: "https://old.example.org" };
     expect(deploymentEnvironment(settings, inherited).MULTIPLAYER_PROD_URL).toBe(
       inherited.MULTIPLAYER_PROD_URL,
@@ -37,9 +37,9 @@ test("deployment reads persistent values outside html and reloads them for each 
 test("an unreadable deployment env path fails instead of silently using stale values", () => {
   const work = mkdtempSync(join(tmpdir(), "deployment-env-"));
   try {
-    mkdirSync(join(work, ".env.local"));
+    mkdirSync(join(work, ".env.domus"));
     expect(() =>
-      deploymentEnvironment({ bun: process.execPath, target: join(work, "html") }),
+      deploymentEnvironment({ bun: process.execPath, envFile: join(work, ".env.domus") }),
     ).toThrow();
   } finally {
     removeDirectory(tmpdir(), basename(work));

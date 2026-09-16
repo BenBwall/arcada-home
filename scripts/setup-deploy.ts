@@ -66,6 +66,7 @@ const createSettings = (receiver: string, target: string): DeploymentSettings =>
   return {
     bun: process.execPath,
     cache: path.join(homedir(), "Documents", "Codex", "arcada-home-deploy", cacheId),
+    envFile: path.join(repository, ".env.domus"),
     git,
     receiver,
     tar: findExecutable("tar.exe"),
