@@ -3,6 +3,7 @@
     "paths": {
       "$cardgame": ["./vendor/cardgame/src/index.ts"],
       "@cardgame/*": ["./vendor/cardgame/src/*"],
+      "@cardgame-dev/*": ["./vendor/cardgame/scripts/*"],
       "$components/*": ["./src/lib/components/*"],
       "$data/*": ["./src/lib/data/*"],
       "$theme/*": ["./src/lib/theme/*"],

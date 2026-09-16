@@ -1,6 +1,6 @@
+import { type Browser, type Page, expect, test } from "@playwright/test";
 import { basename, dirname, join, resolve } from "node:path";
 import { cpSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { expect, test } from "@playwright/test";
 import { tmpdir } from "node:os";
 
 const collect = async (stream: ReadableStream<Uint8Array>, append: (text: string) => void) => {
@@ -15,8 +15,38 @@ const collect = async (stream: ReadableStream<Uint8Array>, append: (text: string
   }
 };
 
+const checkMultiplayer = async (browser: Browser, page: Page, base: string): Promise<void> => {
+  await expect(page.locator("#card-game-mount")).toHaveAttribute(
+    "data-multiplayer-url",
+    "http://127.0.0.1:8787",
+  );
+  expect((await page.request.get("http://127.0.0.1:8787/health")).ok()).toBe(true);
+  const guest = await browser.newPage();
+  try {
+    await guest.goto(base);
+    for (const player of [page, guest]) {
+      await player.getByRole("tab", { exact: true, name: "Shithead" }).click();
+      await player.getByRole("tab", { exact: true, name: "Multiplayer" }).click();
+      await player.getByRole("textbox", { name: "Display username" }).fill("Preview player");
+    }
+    await page.getByRole("button", { exact: true, name: "Create room" }).click();
+    await expect(page.locator("online-lobby .code")).toBeVisible();
+    await guest
+      .getByRole("textbox", { name: "Room code" })
+      .fill(await page.locator("online-lobby .code").innerText());
+    await guest.getByRole("button", { exact: true, name: "Join room" }).click();
+    await expect(guest.getByRole("list", { name: "Players" }).getByRole("listitem")).toHaveCount(2);
+    await page.getByRole("button", { exact: true, name: "Start game" }).click();
+    await expect(guest.locator('[aria-label="Online Shithead board"]')).toBeVisible();
+  } finally {
+    await guest.close();
+  }
+  await page.getByRole("tab", { exact: true, name: "Free play" }).click();
+};
+
 test("development reloads external card-game edits and preserves the last successful build", async ({
   page,
+  browser,
 }) => {
   test.setTimeout(90_000);
   const fixture = mkdtempSync(join(tmpdir(), "arcada-preview-"));
@@ -48,6 +78,7 @@ test("development reloads external card-game edits and preserves the last succes
       .toBe(true);
     await page.goto(base);
     await expect(page.locator("card-game .mode")).toHaveText("Single player · Free play");
+    await checkMultiplayer(browser, page, base);
     const initialRevision = await page
       .locator("script[data-revision]")
       .getAttribute("data-revision");

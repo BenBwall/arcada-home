@@ -11,6 +11,7 @@ import { collectResult } from "@lit-labs/ssr/lib/render-result.js";
 import { createHash } from "node:crypto";
 import { format } from "oxfmt";
 import { getThemeStyles } from "$theme/built-in-themes.js";
+import { multiplayerUrl } from "@cardgame/multiplayer/config.js";
 import { projectRowStyles } from "$components/project-row.js";
 import { render } from "@lit-labs/ssr";
 import sharp from "sharp";
@@ -26,6 +27,7 @@ const DEFAULT_PREVIEW_PORT = 4173;
 const root = resolve(import.meta.dirname, "..");
 const previewSlot = process.env.DEV_PREVIEW_SLOT;
 const preview = previewSlot === "a" || previewSlot === "b";
+process.env.MULTIPLAYER_URL = multiplayerUrl(process.env, preview);
 const outputName = preview
   ? join(
       ".cache/dev-preview",
