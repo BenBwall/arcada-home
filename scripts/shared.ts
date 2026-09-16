@@ -86,9 +86,12 @@ export const hashFile = (file: string): string =>
   createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 
 /** Build processes should use our Bun executable, without inheriting Git hook state. */
-export const createBuildEnvironment = (bun: string): NodeJS.ProcessEnv => {
+export const createBuildEnvironment = (
+  bun: string,
+  inherited: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv => {
   const environment = Object.fromEntries(
-    Object.entries(process.env).filter(([key]) => !/^GIT_/i.test(key)),
+    Object.entries(inherited).filter(([key]) => !/^GIT_/i.test(key)),
   );
   const pathKey = Object.keys(environment).find((key) => key.toUpperCase() === "PATH") ?? "PATH";
   environment[pathKey] = path.dirname(bun) + path.delimiter + (environment[pathKey] ?? "");

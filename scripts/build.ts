@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import {
   type DeploymentSettings,
+  assertNoSymlinks,
   copyDirectory,
   createBuildEnvironment,
   listFiles,
@@ -9,8 +10,31 @@ import {
   runCommand,
   withLock,
 } from "$scripts/shared";
+import { dirname, join } from "node:path";
 import { exportSubmodules } from "$scripts/submodules";
+import { parseEnv } from "node:util";
 import { randomUUID } from "node:crypto";
+
+export const deploymentEnvironment = (
+  settings: Pick<DeploymentSettings, "bun" | "target">,
+  inherited: NodeJS.ProcessEnv = process.env,
+): NodeJS.ProcessEnv => {
+  // Keep persistent values beside the public directory, never inside its output.
+  const filename = join(dirname(settings.target), ".env.local");
+  assertNoSymlinks(filename);
+  let local: NodeJS.ProcessEnv = {};
+  try {
+    local = parseEnv(fs.readFileSync(filename, "utf8"));
+  } catch (error) {
+    if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) {
+      throw error;
+    }
+  }
+  return {
+    ...createBuildEnvironment(settings.bun, { ...inherited, ...local }),
+    BASE_PATH: "/~bergenwb",
+  };
+};
 
 export const exportRevision = (
   settings: DeploymentSettings,
@@ -42,10 +66,7 @@ export const exportRevision = (
 };
 
 const buildSite = (settings: DeploymentSettings, revision: string, source: string): string => {
-  const env = {
-    ...createBuildEnvironment(settings.bun),
-    BASE_PATH: "/~bergenwb",
-  };
+  const env = deploymentEnvironment(settings);
   const options = { cwd: source, env };
   console.log(`Building main commit ${revision} for /~bergenwb with Bun ...`);
   runCommand(settings.bun, ["install", "--frozen-lockfile"] as const, options);
