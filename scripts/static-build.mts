@@ -139,6 +139,7 @@ const releaseId = async (): Promise<string> => {
     hash.update(contents[index]);
   }
   hash.update(process.env.BASE_PATH ?? "/~bergenwb");
+  hash.update(process.env.MULTIPLAYER_URL ?? "");
   return hash.digest("hex").slice(0, RELEASE_ID_LENGTH);
 };
 

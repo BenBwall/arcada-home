@@ -132,17 +132,20 @@ test("custom themes support editing, validation, OKLCH, cancel, export, import a
   if (!file) {
     throw new Error("Export did not produce a file.");
   }
-  await page.locator('input[type="file"]').setInputFiles(file);
+  await page.locator("appearance-panel").locator('input[type="file"]').setInputFiles(file);
   await expect(page.locator("appearance-panel").getByRole("status")).toHaveText(
     "Themes imported. Choose one to try it.",
   );
   await page.getByRole("button", { exact: true, name: "Delete" }).click();
   await expect(page.locator("appearance-panel").getByRole("status")).toHaveText("Theme deleted.");
-  await page.locator('input[type="file"]').setInputFiles({
-    buffer: Buffer.from("{}"),
-    mimeType: "application/json",
-    name: "invalid.json",
-  });
+  await page
+    .locator("appearance-panel")
+    .locator('input[type="file"]')
+    .setInputFiles({
+      buffer: Buffer.from("{}"),
+      mimeType: "application/json",
+      name: "invalid.json",
+    });
   await expect(page.getByRole("alert")).toBeVisible();
   expect(errors).toEqual([]);
 });

@@ -4,5 +4,10 @@ import { CardGame } from "$cardgame";
 
 applyAppearance(readAppearance());
 
-// Mount only on the homepage; the game owns all of its state in this browser tab.
-document.getElementById("card-game-mount")?.replaceChildren(new CardGame());
+// The page provides the separately hosted multiplayer origin at build time.
+const mount = document.getElementById("card-game-mount");
+if (mount) {
+  const game = new CardGame();
+  game.multiplayerUrl = mount.dataset.multiplayerUrl ?? "";
+  mount.replaceChildren(game);
+}

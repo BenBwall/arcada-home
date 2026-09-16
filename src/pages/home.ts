@@ -73,8 +73,8 @@ export const homePage = () => html`
   </section>
   <section class="card-game-section" aria-labelledby="card-game-title">
     <h2 id="card-game-title">Take a card break</h2>
-    <p>Play Shithead against the computer, or draw and arrange cards in free play.</p>
-    <div id="card-game-mount"></div>
+    <p>Play Shithead against the computer or online, or draw and arrange cards in free play.</p>
+    <div id="card-game-mount" data-multiplayer-url=${process.env.MULTIPLAYER_URL ?? ""}></div>
     <noscript>Enable JavaScript to play the card game locally in your browser.</noscript>
   </section>
 `;

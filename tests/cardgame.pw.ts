@@ -1,9 +1,39 @@
 import { expect, test } from "@playwright/test";
 
+test("homepage wires the configurable online server and keeps an unconfigured lobby offline", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  const sockets: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("websocket", (socket) => sockets.push(socket.url()));
+  await page.goto("./");
+  const game = page.locator("card-game");
+  const configured = await page.locator("#card-game-mount").getAttribute("data-multiplayer-url");
+  expect(
+    await game.evaluate((element) =>
+      "multiplayerUrl" in element && typeof element.multiplayerUrl === "string"
+        ? element.multiplayerUrl
+        : null,
+    ),
+  ).toBe(configured ?? "");
+  await game.getByRole("tab", { exact: true, name: "Shithead" }).click();
+  await game.getByRole("tab", { exact: true, name: "Multiplayer" }).click();
+  const lobby = game.locator("online-lobby");
+  await expect(lobby.getByRole("heading", { name: "Play online" })).toBeVisible();
+  if (!configured) {
+    await expect(lobby.getByRole("status").first()).toContainText("not configured");
+    await expect(lobby.getByRole("button", { exact: true, name: "Create room" })).toBeDisabled();
+  }
+  expect(sockets).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
 test("homepage offers Shithead with a local opponent", async ({ page }) => {
   await page.goto("./");
   const game = page.locator("card-game");
-  await game.getByRole("combobox", { exact: true, name: "Game" }).selectOption("shithead");
+  await game.getByRole("tab", { exact: true, name: "Shithead" }).click();
+  await game.getByRole("tab", { exact: true, name: "Single player" }).click();
   await expect(game.getByRole("heading", { exact: true, name: "Shithead" })).toBeVisible();
   await expect(game.getByRole("heading", { exact: true, name: "Your hand (3)" })).toBeVisible();
   await game.getByRole("button", { exact: true, name: "Start game" }).click();
